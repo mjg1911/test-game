@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useGameStateContext } from '../providers/GameStateProvider';
+import { useGameStateContext, getFarmerCost } from '../providers/GameStateProvider';
 import Popup from './Popup';
 
 const CROP_CONFIG = {
@@ -62,6 +62,21 @@ const CropField: React.FC = () => {
     dispatch({ type: 'COLLECT_CROP', crop });
   };
 
+  const handleBuyFarmer = (crop: keyof typeof CROP_CONFIG) => {
+    const cropData = state.crops[crop];
+    if (!cropData || cropData.count === 0) {
+      setPopup({ message: 'Buy a plot first!', type: 'info' });
+      return;
+    }
+    const farmers = cropData.farmers || 0;
+    const cost = getFarmerCost(crop, farmers);
+    if (state.resources.money >= cost) {
+      dispatch({ type: 'BUY_FARMER', crop });
+    } else {
+      setPopup({ message: `Need $${cost} to buy farmer!`, type: 'error' });
+    }
+  };
+
 // Remove tick, timer, and getTimeRemaining
 
 
@@ -110,6 +125,26 @@ const emoji = crop === 'wheat' ? '🌾' : '🌽';
             Collect (+{(data?.count ?? 0) * CROP_CONFIG[crop].sellPrice})
           </button>
         </div>
+        {data?.count > 0 && (
+          <div style={{ marginTop: 12, padding: 8, background: 'rgba(0,0,0,0.1)', borderRadius: 4 }}>
+            <div style={{ fontSize: 7, marginBottom: 4 }}>
+              Farmers: {data?.farmers ?? 0} | {(data?.farmers ?? 0) > 0 ? 'Auto-sell active' : 'No auto-sell'}
+            </div>
+            {(data?.farmers ?? 0) > 0 && (
+              <div style={{ fontSize: 6, color: '#22c55e', marginBottom: 4 }}>
+                Your farmer sells up to {(data?.farmers ?? 0) * 10} crops per timer
+              </div>
+            )}
+            <button 
+              className="pixel-button" 
+              style={{ fontSize: 12, padding: '8px 16px' }}
+              onClick={() => handleBuyFarmer(crop)}
+              disabled={state.resources.money < getFarmerCost(crop, data?.farmers ?? 0)}
+            >
+              Buy Farmer (${getFarmerCost(crop, data?.farmers ?? 0)})
+            </button>
+          </div>
+        )}
       </div>
           );
 
