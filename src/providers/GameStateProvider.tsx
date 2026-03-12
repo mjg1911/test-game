@@ -3,6 +3,22 @@ import { getInitialGameState } from '../gameState';
 
 const initialState = getInitialGameState();
 
+export const cropConfig = {
+  wheat: { baseCost: 10, cooldown: 5000 },
+  corn: { baseCost: 20, cooldown: 8000 },
+  sunflower: { baseCost: 30, cooldown: 10000 },
+  peas: { baseCost: 40, cooldown: 12000 },
+  pumpkin: { baseCost: 50, cooldown: 14000 },
+  potato: { baseCost: 70, cooldown: 17000 },
+  tomato: { baseCost: 100, cooldown: 21000 }
+};
+
+export function getFarmerCost(cropKey: string, farmersOwned: number): number {
+  const config = cropConfig[cropKey as keyof typeof cropConfig];
+  if (!config) return Infinity;
+  return Math.floor(100 * config.baseCost * Math.pow(1.15, farmersOwned));
+}
+
 export const GameStateContext = createContext({
   state: initialState,
   dispatch: (action: any) => {}
@@ -14,15 +30,6 @@ function reducer(state, action) {
       const crop = state.crops[action.crop];
       if (!crop) return state; // Crop not in state (legacy save)
       
-      const cropConfig = {
-        wheat: { baseCost: 10, cooldown: 5000 },
-        corn: { baseCost: 20, cooldown: 8000 },
-        sunflower: { baseCost: 30, cooldown: 10000 },
-        peas: { baseCost: 40, cooldown: 12000 },
-        pumpkin: { baseCost: 50, cooldown: 14000 },
-        potato: { baseCost: 70, cooldown: 17000 },
-        tomato: { baseCost: 100, cooldown: 21000 }
-      };
       const config = cropConfig[action.crop];
       if (!config) return state;
       
@@ -78,6 +85,70 @@ function reducer(state, action) {
           ...state.crops,
           [action.crop]: {
             ...crop,
+            lastHarvest: Date.now(),
+          },
+        },
+      };
+    }
+    case 'BUY_FARMER': {
+      const crop = state.crops[action.crop];
+      if (!crop || crop.count === 0) return state;
+      
+      const farmers = crop.farmers || 0;
+      const cost = getFarmerCost(action.crop, farmers);
+      
+      if (state.resources.money < cost) return state;
+
+      return {
+        ...state,
+        crops: {
+          ...state.crops,
+          [action.crop]: {
+            ...crop,
+            farmers: farmers + 1,
+          },
+        },
+        resources: {
+          ...state.resources,
+          money: state.resources.money - cost,
+        },
+      };
+    }
+    case 'AUTO_SELL': {
+      const crop = state.crops[action.crop];
+      if (!crop || crop.count === 0 || (crop.farmers || 0) === 0) return state;
+      
+      const lastHarvest = crop.lastHarvest || Date.now();
+      const elapsed = Date.now() - lastHarvest;
+      if (elapsed < crop.cooldown) return state; // Not ready
+
+      const sellPrices: Record<string, number> = {
+        wheat: 15,
+        corn: 30,
+        sunflower: 45,
+        peas: 65,
+        pumpkin: 85,
+        potato: 110,
+        tomato: 145
+      };
+      
+      const farmers = crop.farmers || 0;
+      const sellPrice = sellPrices[action.crop] || 15;
+      const maxPerFarmer = 10;
+      const totalToSell = Math.min(farmers * maxPerFarmer, crop.count);
+      const profit = totalToSell * sellPrice;
+
+      return {
+        ...state,
+        resources: {
+          ...state.resources,
+          money: state.resources.money + profit,
+        },
+        crops: {
+          ...state.crops,
+          [action.crop]: {
+            ...crop,
+            count: crop.count - totalToSell,
             lastHarvest: Date.now(),
           },
         },
@@ -238,6 +309,24 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       // Could add error feedback here if needed
     }
+  }, [state]);
+
+  // Auto-sell timer: check for ready crops with farmers every second
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      const cropKeys = Object.keys(state.crops) as (keyof typeof state.crops)[];
+      for (const cropKey of cropKeys) {
+        const crop = state.crops[cropKey];
+        if (crop && crop.count > 0 && (crop.farmers || 0) > 0) {
+          const lastHarvest = crop.lastHarvest || Date.now();
+          const elapsed = Date.now() - lastHarvest;
+          if (elapsed >= crop.cooldown) {
+            dispatch({ type: 'AUTO_SELL', crop: cropKey });
+          }
+        }
+      }
+    }, 1000);
+    return () => clearInterval(interval);
   }, [state]);
 
   return (
