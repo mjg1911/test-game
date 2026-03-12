@@ -148,8 +148,8 @@ function reducer(state, action) {
           ...state.crops,
           [action.crop]: {
             ...crop,
-            count: crop.count - totalToSell,
-            lastHarvest: Date.now(),
+count: crop.count,
+             lastHarvest: Date.now(),
           },
         },
       };
