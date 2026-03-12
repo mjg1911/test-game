@@ -7,6 +7,7 @@ import './App.css'
 import ResourcePanel from './components/ResourcePanel';
 import AnimalPen from './components/AnimalPen';
 import UpgradeShop from './components/UpgradeShop';
+import AutomationControls from './components/AutomationControls';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -61,9 +62,10 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <ResourcePanel />
+      <AutomationControls />
       <CropField />
       <AnimalPen />
-<UpgradeShop />
+      <UpgradeShop />
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
