@@ -5,20 +5,28 @@ const initialState = getInitialGameState();
 
 export const GameStateContext = createContext({
   state: initialState,
-  dispatch: () => {}
+  dispatch: (action: any) => {}
 });
 
 function reducer(state, action) {
   switch (action.type) {
     case 'BUY_PLOT': {
+      const crop = state.crops[action.crop];
+      if (!crop) return state; // Crop not in state (legacy save)
+      
       const cropConfig = {
         wheat: { baseCost: 10, cooldown: 5000 },
-        corn: { baseCost: 20, cooldown: 8000 }
+        corn: { baseCost: 20, cooldown: 8000 },
+        sunflower: { baseCost: 30, cooldown: 10000 },
+        peas: { baseCost: 40, cooldown: 12000 },
+        pumpkin: { baseCost: 50, cooldown: 14000 },
+        potato: { baseCost: 70, cooldown: 17000 },
+        tomato: { baseCost: 100, cooldown: 21000 }
       };
       const config = cropConfig[action.crop];
       if (!config) return state;
       
-      const count = state.crops[action.crop].count;
+      const count = crop.count;
       const cost = Math.floor(config.baseCost * Math.pow(1.15, count)); // 15% more each time
       
       if (state.resources.money < cost) return state;
@@ -48,7 +56,15 @@ function reducer(state, action) {
       const elapsed = Date.now() - lastHarvest;
       if (elapsed < crop.cooldown) return state; // Not ready
 
-      const sellPrices = { wheat: 15, corn: 30 };
+      const sellPrices = {
+        wheat: 15,
+        corn: 30,
+        sunflower: 45,
+        peas: 65,
+        pumpkin: 85,
+        potato: 110,
+        tomato: 145
+      };
       const profit = (sellPrices[action.crop] || 15) * crop.count;
 
       return {
@@ -70,14 +86,19 @@ function reducer(state, action) {
     case 'BUY_ANIMAL': {
       const animal = state.animals[action.animal];
       const animalConfig = {
-        cow: { baseCost: 100, cooldown: 10000 },
-        chicken: { baseCost: 25, cooldown: 5000 }
+        cow: { baseCost: 1000, cooldown: 100000 },
+        chicken: { baseCost: 250, cooldown: 50000 },
+        sheep: { baseCost: 350, cooldown: 80000 },
+        pig: { baseCost: 600, cooldown: 120000 },
+        goat: { baseCost: 400, cooldown: 90000 },
+        rabbit: { baseCost: 150, cooldown: 60000 },
+        duck: { baseCost: 200, cooldown: 70000 }
       };
       const config = animalConfig[action.animal];
       if (!config) return state;
 
       const count = state.animals[action.animal].count;
-      const cost = Math.floor(config.baseCost * Math.pow(1.15, count)); // 15% more each time
+      const cost = Math.floor(config.baseCost * Math.pow(1.15, count));
       
       if (state.resources.money < cost) return state;
 
@@ -94,7 +115,7 @@ function reducer(state, action) {
         },
         resources: {
           ...state.resources,
-          money: state.resources.money - Math.floor(config.baseCost * Math.pow(1.15, count)),
+          money: state.resources.money - cost,
         },
       };
     }
@@ -107,11 +128,24 @@ function reducer(state, action) {
       if (elapsed < animal.cooldown) return state;
 
       const produceType = animal.produceType;
+      const animalConfig = {
+        cow: { baseCost: 1000, cooldown: 100000 },
+        chicken: { baseCost: 250, cooldown: 50000 },
+        sheep: { baseCost: 350, cooldown: 80000 },
+        pig: { baseCost: 600, cooldown: 120000 },
+        goat: { baseCost: 400, cooldown: 90000 },
+        rabbit: { baseCost: 150, cooldown: 60000 },
+        duck: { baseCost: 200, cooldown: 70000 }
+      };
+      const config = animalConfig[action.animal];
+      const moneyEarned = config ? config.baseCost * animal.count : 0;
+
       return {
         ...state,
         resources: {
           ...state.resources,
           [produceType]: (state.resources[produceType] || 0) + animal.count,
+          money: state.resources.money + moneyEarned,
         },
         animals: {
           ...state.animals,
@@ -179,7 +213,16 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
           console.log('[INIT] Loaded state from localStorage');
           const parsed = JSON.parse(saved);
           console.log('[INIT] Loaded crops:', parsed.crops);
-          return parsed;
+          // Merge with initial state to ensure new crops/animals are present
+          const initial = getInitialGameState();
+          return {
+            ...initial,
+            ...parsed,
+            crops: { ...initial.crops, ...parsed.crops },
+            animals: { ...initial.animals, ...parsed.animals },
+            resources: { ...initial.resources, ...parsed.resources },
+            upgrades: { ...initial.upgrades, ...parsed.upgrades },
+          };
         }
       } catch (e) {
         console.log('[INIT] Error loading state:', e);

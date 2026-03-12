@@ -9,7 +9,14 @@ describe('ResourcePanel', () => {
     const mockContext = {
       state: {
         resources: {
-          money: 50
+          money: 50,
+          wheat: 10,
+          corn: 5,
+          sunflower: 2,
+          peas: 1,
+          pumpkin: 0,
+          potato: 0,
+          tomato: 0
         }
       },
       dispatch: () => {}

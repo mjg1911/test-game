@@ -7,7 +7,7 @@ const ResourcePanel: React.FC = () => {
   return (
     <div className="pixel-panel" style={{ marginBottom: 16 }}>
       <h3 className="pixel-panel-title">💰 RESOURCES</h3>
-      <div className="pixel-resources">
+<div className="pixel-resources">
         <div className="pixel-resource">
           <span className="pixel-resource-icon">💵</span>
           <span className="pixel-resource-label">Money:</span>

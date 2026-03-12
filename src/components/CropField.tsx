@@ -4,7 +4,12 @@ import Popup from './Popup';
 
 const CROP_CONFIG = {
   wheat: { baseCost: 10, cooldown: 5000, sellPrice: 15 },
-  corn: { baseCost: 20, cooldown: 8000, sellPrice: 30 }
+  corn: { baseCost: 20, cooldown: 8000, sellPrice: 30 },
+  sunflower: { baseCost: 30, cooldown: 10000, sellPrice: 45 },
+  peas: { baseCost: 40, cooldown: 12000, sellPrice: 65 },
+  pumpkin: { baseCost: 50, cooldown: 14000, sellPrice: 85 },
+  potato: { baseCost: 70, cooldown: 17000, sellPrice: 110 },
+  tomato: { baseCost: 100, cooldown: 21000, sellPrice: 145 }
 };
 
 const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.15, count));
@@ -30,6 +35,7 @@ const CropField: React.FC = () => {
 };
 
   const handleBuy = (crop: keyof typeof CROP_CONFIG) => {
+  try {
     const config = CROP_CONFIG[crop];
     const currentCost = getCost(config.baseCost, state.crops[crop]?.count ?? 0);
     if (state.resources.money >= currentCost) {
@@ -37,7 +43,10 @@ const CropField: React.FC = () => {
     } else {
       setPopup({ message: `Need $${currentCost} to buy!`, type: 'error' });
     }
-  };
+  } catch (err) {
+    setPopup({ message: `Error buying crop: ${crop} - ${err}`, type: 'error' });
+  }
+};
 
   const handleCollect = (crop: keyof typeof CROP_CONFIG) => {
     const cropData = state.crops[crop];
