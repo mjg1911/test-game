@@ -15,18 +15,38 @@ export function getInitialGameState() {
   return {
     crops: {
       wheat: { count: 0, lastHarvest: null, cooldown: 5000 },
-      corn: { count: 0, lastHarvest: null, cooldown: 8000 }
+      corn: { count: 0, lastHarvest: null, cooldown: 8000 },
+      sunflower: { count: 0, lastHarvest: null, cooldown: 10000 },
+      peas: { count: 0, lastHarvest: null, cooldown: 12000 },
+      pumpkin: { count: 0, lastHarvest: null, cooldown: 14000 },
+      potato: { count: 0, lastHarvest: null, cooldown: 17000 },
+      tomato: { count: 0, lastHarvest: null, cooldown: 21000 }
     },
     animals: {
-      cow: { count: 0, lastHarvest: null, cooldown: 10000, produceType: 'milk' },
-      chicken: { count: 0, lastHarvest: null, cooldown: 5000, produceType: 'eggs' }
+      cow: { count: 0, lastHarvest: null, cooldown: 100000, produceType: 'milk' },
+      chicken: { count: 0, lastHarvest: null, cooldown: 50000, produceType: 'eggs' },
+      sheep: { count: 0, lastHarvest: null, cooldown: 80000, produceType: 'wool' },
+      pig: { count: 0, lastHarvest: null, cooldown: 120000, produceType: 'bacon' },
+      goat: { count: 0, lastHarvest: null, cooldown: 90000, produceType: 'cheese' },
+      rabbit: { count: 0, lastHarvest: null, cooldown: 60000, produceType: 'fur' },
+      duck: { count: 0, lastHarvest: null, cooldown: 70000, produceType: 'feathers' }
     },
     resources: {
-      money: 50,
+      money: 500,
       wheat: 0,
       corn: 0,
+      sunflower: 0,
+      peas: 0,
+      pumpkin: 0,
+      potato: 0,
+      tomato: 0,
       eggs: 0,
-      milk: 0
+      milk: 0,
+      wool: 0,
+      bacon: 0,
+      cheese: 0,
+      fur: 0,
+      feathers: 0
     },
     upgrades: {
       fertilizer: { level: 0, cost: 100 },

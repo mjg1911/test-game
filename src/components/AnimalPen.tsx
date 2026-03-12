@@ -1,50 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameStateContext } from '../providers/GameStateProvider';
 import Popup from './Popup';
 
 const ANIMAL_CONFIG = {
-  cow: { baseCost: 100, cooldown: 10000 },
-  chicken: { baseCost: 25, cooldown: 5000 }
+  cow: { baseCost: 1000, cooldown: 100000, produceValue: 15 },
+  chicken: { baseCost: 250, cooldown: 50000, produceValue: 5 },
+  sheep: { baseCost: 350, cooldown: 80000, produceValue: 12 },
+  pig: { baseCost: 600, cooldown: 120000, produceValue: 20 },
+  goat: { baseCost: 400, cooldown: 90000, produceValue: 14 },
+  rabbit: { baseCost: 150, cooldown: 60000, produceValue: 8 },
+  duck: { baseCost: 200, cooldown: 70000, produceValue: 10 }
 };
 
 const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.15, count));
 
-const PRODUCE_KEYS: Record<string, string> = {
-  cow: 'milk',
-  chicken: 'eggs'
-};
-
 export default function AnimalPen() {
   const { state, dispatch } = useGameStateContext();
-  const [tick, setTick] = useState(0);
+  
   const [popup, setPopup] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
+  const [, setTick] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => setTick(t => t + 1), 1000);
+    const interval = setInterval(() => setTick(t => t + 1), 100);
     return () => clearInterval(interval);
   }, []);
 
-  const getTimeRemaining = (lastHarvest: number | null, cooldown: number) => {
-    if (!lastHarvest) return { ready: true, text: 'READY' };
-    const elapsed = Date.now() - lastHarvest;
-    const remaining = Math.max(0, cooldown - elapsed);
-    if (remaining === 0) return { ready: true, text: '⏰ READY!' };
-    const seconds = Math.ceil(remaining / 1000);
-    return { ready: false, text: `⏳ ${seconds}s` };
-  };
+  const getProgress = (lastHarvest: number | null, cooldown: number) => {
+  if (!lastHarvest) return 100;
+  const elapsed = Date.now() - lastHarvest;
+  const progress = Math.min(100, Math.floor((elapsed / cooldown) * 100));
+  return progress;
+};
 
   const handleBuy = (animal: string) => {
-    const config = ANIMAL_CONFIG[animal as keyof typeof ANIMAL_CONFIG];
-    const currentCost = getCost(config.baseCost, state.animals[animal].count);
+    const key = animal as keyof typeof ANIMAL_CONFIG;
+    const config = ANIMAL_CONFIG[key];
+    const animalState = state.animals[key];
+    const currentCost = getCost(config.baseCost, animalState.count);
     if (state.resources.money >= currentCost) {
-      dispatch({ type: 'BUY_ANIMAL', animal });
+      dispatch({ type: 'BUY_ANIMAL', animal: key });
     } else {
       setPopup({ message: `Need $${currentCost} to buy!`, type: 'error' });
     }
   };
 
   const handleCollect = (animal: string) => {
-    const animalData = state.animals[animal];
+    const key = animal as keyof typeof state.animals;
+    const animalData = state.animals[key];
     if (animalData.count === 0) {
       setPopup({ message: 'Buy an animal first!', type: 'info' });
       return;
@@ -54,18 +56,17 @@ export default function AnimalPen() {
       setPopup({ message: 'Not ready yet!', type: 'info' });
       return;
     }
-    dispatch({ type: 'COLLECT_ANIMAL', animal });
+    dispatch({ type: 'COLLECT_ANIMAL', animal: key });
   };
 
   return (
     <div>
       <div className="pixel-grid">
         {Object.entries(state.animals).map(([animal, data]: [string, any]) => {
-          const timeInfo = getTimeRemaining(data.lastHarvest, data.cooldown);
+          const progress = getProgress(data.lastHarvest, data.cooldown);
           const animalCost = getCost(ANIMAL_CONFIG[animal as keyof typeof ANIMAL_CONFIG].baseCost, data.count);
-          const emoji = animal === 'chicken' ? '🐔' : '🐄';
-          const produceEmoji = animal === 'chicken' ? '🥚' : '🥛';
-          const produceKey = PRODUCE_KEYS[animal];
+          const emoji = animal === 'chicken' ? '🐔' : animal === 'cow' ? '🐄' : animal === 'sheep' ? '🐑' : animal === 'pig' ? '🐷' : animal === 'goat' ? '🐐' : animal === 'rabbit' ? '🐰' : '🦆';
+          
           return (
             <div key={animal} className="pixel-stat">
               <div className="pixel-stat-label">
@@ -74,20 +75,18 @@ export default function AnimalPen() {
               <div className="pixel-stat-value">
                 Owned: {data.count} | Cost: ${animalCost}
               </div>
-              <div style={{ 
-                fontSize: 7, 
-                color: timeInfo?.ready ? '#22c55e' : '#8b5e3c', 
-                marginTop: 4,
-                fontWeight: timeInfo?.ready ? 'bold' : 'normal'
-              }}>
-                {data.count > 0 ? (
-                  timeInfo?.ready ? (
-                    <span style={{ animation: 'pulse 1s infinite', display: 'inline-block' }}>
-                      {timeInfo.text}
-                    </span>
-                  ) : timeInfo?.text || '—'
-                ) : 'Buy your first!'}
-              </div>
+              {data.count > 0 ? (
+  <div style={{ marginTop: 4 }}>
+    <div className="pixel-progress">
+      <div className="pixel-progress-bar" style={{ width: `${progress}%` }} />
+    </div>
+    <div style={{ fontSize: 7, color: progress === 100 ? '#22c55e' : '#8b5e3c', fontWeight: progress === 100 ? 'bold' : 'normal', marginTop: 4 }}>
+      {progress === 100 ? 'READY!' : `${progress}%`}
+    </div>
+  </div>
+) : (
+  <div style={{ fontSize: 7, marginTop: 4 }}>Buy your first!</div>
+)}
               <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
                 <button 
                   className="pixel-button" 
@@ -102,7 +101,7 @@ export default function AnimalPen() {
                   onClick={() => handleCollect(animal)}
                   disabled={data.count === 0}
                 >
-                  Collect ({state.resources[produceKey] || 0})
+                  Collect (+{data.count * ANIMAL_CONFIG[animal as keyof typeof ANIMAL_CONFIG].baseCost})
                 </button>
               </div>
             </div>
