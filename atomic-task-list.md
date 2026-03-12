@@ -1,9 +1,9 @@
 # Idle Farm Game Atomic Task List
 
 ## 1. Set up the project
-1.a: Initialize a new React app/project
-1.b: Create root folders: /src, /assets, /components, /hooks
-1.c: Add pixel art support: set up Canvas or asset system
+- [x] 1.a: Initialize a new React app/project
+- [x] 1.b: Create root folders: /src, /assets, /components, /hooks
+- [x] 1.c: Add pixel art support: set up Canvas or asset system
 
 ## 2. Core Game State
 2.a: Define basic game state structure (crops, animals, resources, upgrades)
