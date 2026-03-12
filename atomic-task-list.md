@@ -6,18 +6,18 @@
 - [x] 1.c: Add pixel art support: set up Canvas or asset system
 
 ## 2. Core Game State
-2.a: Define basic game state structure (crops, animals, resources, upgrades)
-2.b: Implement React state/store for game state
-2.c: Add localStorage autosave: save on every action/timer
-2.d: Add localStorage load: restore state on page load
+- [x] 2.a: Define basic game state structure (crops, animals, resources, upgrades)
+- [x] 2.b: Implement React state/store for game state
+- [x] 2.c: Add localStorage autosave: save on every action/timer
+- [x] 2.d: Add localStorage load: restore state on page load
 
 ## 3. Basic UI Skeleton
-3.a: Scaffold Resource Panel (top bar UI)
-3.b: Scaffold Crop Field component (main section)
-3.c: Scaffold Animal Pen component (main section)
-3.d: Scaffold Upgrade Shop component (side/modal)
-3.e: Scaffold Automation Controls component (bottom/floating)
-3.f: Place Canvas for pixel art display
+- [x] 3.a: Scaffold Resource Panel (top bar UI)
+- [x] 3.b: Scaffold Crop Field component (main section)
+- [x] 3.c: Scaffold Animal Pen component (main section)
+- [x] 3.d: Scaffold Upgrade Shop component (side/modal)
+- [x] 3.e: Scaffold Automation Controls component (bottom/floating)
+- [x] 3.f: Place Canvas for pixel art display
 
 ## 4. Crop System
 4.a: Add Plant Crop button and action
@@ -50,12 +50,12 @@
 
 ## 9. Error Handling & Feedback
 9.a: Show alert/message if action cannot be performed (e.g., insufficient money)
-9.b: Handle unexpected/corrupt state gracefully (reset/fallback)
+- [x] 9.b: Handle unexpected/corrupt state gracefully (reset/fallback)
 
 ## 10. Testing and Validation
 10.a: Write manual test/quick log for each main action
-10.b: (Optional) Add simple automated test for state changes
-10.c: Validate autosave/load functionality
+- [x] 10.b: (Optional) Add simple automated test for state changes
+- [x] 10.c: Validate autosave/load functionality
 
 ## 11. Progressive Unlocks
 11.a: Add logic to unlock new crops based on milestones (e.g., X harvested)
@@ -63,5 +63,5 @@
 
 ## 12. Polish and Extras
 12.a: Improve pixel art assets and layout
-12.b: Add optional export/import buttons for save files
+- [x] 12.b: Add optional export/import buttons for save files
 12.c: Refine UI for rapid feedback and ease-of-use
