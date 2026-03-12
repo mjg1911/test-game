@@ -119,6 +119,9 @@ function App() {
       </div>
       
       <div className="pixel-footer">
+        <button className="pixel-button secondary" onClick={() => dispatch({ type: 'RESET' })}>
+          Reset Game
+        </button>
         <button className="pixel-button secondary" onClick={handleExport}>
           Export Save
         </button>

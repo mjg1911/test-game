@@ -15,15 +15,14 @@ describe('CropField', () => {
     expect(screen.getByRole('button', { name: /Harvest/i })).toBeInTheDocument();
   });
 
-  it('shows floating feedback after successful harvest', async () => {
-    // Use a timestamp so old it will definitely be ready (planted in 1970!)
-    const veryOldTime = 0;
+  it('shows floating feedback after successful harvest with pre-grown crop', async () => {
+    const plantedAtTime = Date.now() - 10000;
     
-    window.localStorage.setItem('idleFarmGameState', JSON.stringify({
+    const initialState = {
       crops: {
         wheat: {
           count: 1,
-          plantedAt: veryOldTime,
+          plantedAt: plantedAtTime,
           growthTime: 5000
         },
         corn: {
@@ -47,13 +46,19 @@ describe('CropField', () => {
         fertilizer: { level: 0, cost: 100 },
         autoHarvester: { level: 0, cost: 500 }
       }
-    }));
+    };
+
+    window.localStorage.setItem('idleFarmGameState', JSON.stringify(initialState));
 
     render(
       <GameStateProvider>
         <CropField />
       </GameStateProvider>
     );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Count: 1/)).toBeInTheDocument();
+    });
 
     const harvestBtn = screen.getByRole('button', { name: /Harvest/i });
     fireEvent.click(harvestBtn);
