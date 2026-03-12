@@ -301,6 +301,11 @@ body {
   51%, 100% { opacity: 0; }
 }
 
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
 .pixel-blink {
   animation: blink 1s infinite;
 }

@@ -37,9 +37,16 @@ function reducer(state, action) {
       const cost = cropConfig[action.crop]?.cost || 10;
       const growthTime = cropConfig[action.crop]?.growthTime || 5000;
 
+      console.log('[PLANT_CROP] action:', action);
+      console.log('[PLANT_CROP] current crop state:', state.crops[action.crop]);
+      console.log('[PLANT_CROP] existing plantedAt:', state.crops[action.crop]?.plantedAt);
+
       if (state.resources.money < cost) {
+        console.log('[PLANT_CROP] NOT ENOUGH MONEY');
         return state;
       }
+      const newPlantedAt = state.crops[action.crop].plantedAt || Date.now();
+      console.log('[PLANT_CROP] new plantedAt:', newPlantedAt);
       return {
         ...state,
         crops: {
@@ -47,7 +54,7 @@ function reducer(state, action) {
           [action.crop]: {
             ...state.crops[action.crop],
             count: state.crops[action.crop].count + action.amount,
-            plantedAt: Date.now(),
+            plantedAt: newPlantedAt,
             growthTime,
           },
         },
@@ -58,10 +65,15 @@ function reducer(state, action) {
       };
     }
     case 'HARVEST_CROP': {
-      // Only allow if crop is grown
+      console.log('[HARVEST_CROP] action:', action);
       const crop = state.crops[action.crop];
-      if (!crop || crop.count === 0 || !crop.plantedAt) return state;
+      console.log('[HARVEST_CROP] crop:', crop);
+      if (!crop || crop.count === 0 || !crop.plantedAt) {
+        console.log('[HARVEST_CROP] invalid crop or not planted');
+        return state;
+      }
       const isReady = Date.now() - crop.plantedAt >= crop.growthTime;
+      console.log('[HARVEST_CROP] isReady:', isReady, 'elapsed:', Date.now() - crop.plantedAt, 'growthTime:', crop.growthTime);
       if (!isReady) return state;
       return {
         ...state,
@@ -171,10 +183,13 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
       try {
         const saved = localStorage.getItem('idleFarmGameState');
         if (saved) {
-          return JSON.parse(saved);
+          console.log('[INIT] Loaded state from localStorage');
+          const parsed = JSON.parse(saved);
+          console.log('[INIT] Loaded crops:', parsed.crops);
+          return parsed;
         }
       } catch (e) {
-        // Error loading state, fallback
+        console.log('[INIT] Error loading state:', e);
       }
       return getInitialGameState();
     }
