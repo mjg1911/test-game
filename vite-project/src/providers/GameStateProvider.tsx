@@ -60,7 +60,7 @@ function reducer(state, action) {
     case 'HARVEST_CROP': {
       // Only allow if crop is grown
       const crop = state.crops[action.crop];
-      if (!crop || crop.count === 0 || !crop.plantedAt) return state;
+      if (!crop || crop.count === 0 || crop.plantedAt === null) return state;
       const isReady = Date.now() - crop.plantedAt >= crop.growthTime;
       if (!isReady) return state;
       return {
