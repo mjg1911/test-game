@@ -3,7 +3,11 @@ import { getInitialGameState } from '../gameState';
 
 const initialState = getInitialGameState();
 
-export const cropConfig = {
+interface CropConfig {
+  baseCost: number;
+  cooldown: number;
+}
+export const cropConfig: { [key: string]: CropConfig } = {
   wheat: { baseCost: 10, cooldown: 5000 },
   corn: { baseCost: 20, cooldown: 8000 },
   sunflower: { baseCost: 30, cooldown: 10000 },
@@ -24,7 +28,71 @@ export const GameStateContext = createContext({
   dispatch: (action: any) => {}
 });
 
-function reducer(state, action) {
+import type { CropData, AnimalData } from '../gameState';
+
+interface CropsState {
+  wheat: CropData;
+  corn: CropData;
+  sunflower: CropData;
+  peas: CropData;
+  pumpkin: CropData;
+  potato: CropData;
+  tomato: CropData;
+}
+
+interface AnimalsState {
+  cow: AnimalData;
+  chicken: AnimalData;
+  sheep: AnimalData;
+  pig: AnimalData;
+  goat: AnimalData;
+  rabbit: AnimalData;
+  duck: AnimalData;
+}
+
+interface ResourcesState {
+  money: number;
+  wheat: number;
+  corn: number;
+  sunflower: number;
+  peas: number;
+  pumpkin: number;
+  potato: number;
+  tomato: number;
+  eggs: number;
+  milk: number;
+  wool: number;
+  bacon: number;
+  cheese: number;
+  fur: number;
+  feathers: number;
+}
+
+interface UpgradesState {
+  fertilizer: { level: number; cost: number };
+  autoHarvester: { level: number; cost: number };
+}
+
+interface GameState {
+  crops: CropsState;
+  animals: AnimalsState;
+  resources: ResourcesState;
+  upgrades: UpgradesState;
+}
+
+
+type GameAction =
+  | { type: 'BUY_PLOT'; crop: string }
+  | { type: 'COLLECT_CROP'; crop: string }
+  | { type: 'BUY_FARMER'; crop: string }
+  | { type: 'AUTO_SELL'; crop: string }
+  | { type: 'BUY_ANIMAL'; animal: string }
+  | { type: 'COLLECT_ANIMAL'; animal: string }
+  | { type: 'SELL_RESOURCES'; resource: string; amount: number }
+  | { type: 'UPGRADE'; upgrade: string; cost: number }
+  | { type: 'RESET' };
+
+function reducer(state: GameState, action: GameAction) {
   switch (action.type) {
     case 'BUY_PLOT': {
       const crop = state.crops[action.crop];
@@ -63,15 +131,15 @@ function reducer(state, action) {
       const elapsed = Date.now() - lastHarvest;
       if (elapsed < crop.cooldown) return state; // Not ready
 
-      const sellPrices = {
-        wheat: 15,
-        corn: 30,
-        sunflower: 45,
-        peas: 65,
-        pumpkin: 85,
-        potato: 110,
-        tomato: 145
-      };
+const sellPrices: { [key: string]: number } = {
+  wheat: 15,
+  corn: 30,
+  sunflower: 45,
+  peas: 65,
+  pumpkin: 85,
+  potato: 110,
+  tomato: 145
+};
       const profit = (sellPrices[action.crop] || 15) * crop.count;
 
       return {
@@ -148,23 +216,24 @@ function reducer(state, action) {
           ...state.crops,
           [action.crop]: {
             ...crop,
-count: crop.count,
-             lastHarvest: Date.now(),
+            count: crop.count, // Keep plots permanent
+            lastHarvest: Date.now(),
           },
         },
       };
     }
     case 'BUY_ANIMAL': {
       const animal = state.animals[action.animal];
-      const animalConfig = {
-        cow: { baseCost: 1000, cooldown: 100000 },
-        chicken: { baseCost: 250, cooldown: 50000 },
-        sheep: { baseCost: 350, cooldown: 80000 },
-        pig: { baseCost: 600, cooldown: 120000 },
-        goat: { baseCost: 400, cooldown: 90000 },
-        rabbit: { baseCost: 150, cooldown: 60000 },
-        duck: { baseCost: 200, cooldown: 70000 }
-      };
+const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = {
+  cow: { baseCost: 1000, cooldown: 100000 },
+  chicken: { baseCost: 250, cooldown: 50000 },
+  sheep: { baseCost: 350, cooldown: 80000 },
+  pig: { baseCost: 600, cooldown: 120000 },
+  goat: { baseCost: 400, cooldown: 90000 },
+  rabbit: { baseCost: 150, cooldown: 60000 },
+  duck: { baseCost: 200, cooldown: 70000 }
+};
+
       const config = animalConfig[action.animal];
       if (!config) return state;
 
@@ -199,15 +268,16 @@ count: crop.count,
       if (elapsed < animal.cooldown) return state;
 
       const produceType = animal.produceType;
-      const animalConfig = {
-        cow: { baseCost: 1000, cooldown: 100000 },
-        chicken: { baseCost: 250, cooldown: 50000 },
-        sheep: { baseCost: 350, cooldown: 80000 },
-        pig: { baseCost: 600, cooldown: 120000 },
-        goat: { baseCost: 400, cooldown: 90000 },
-        rabbit: { baseCost: 150, cooldown: 60000 },
-        duck: { baseCost: 200, cooldown: 70000 }
-      };
+const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = {
+  cow: { baseCost: 1000, cooldown: 100000 },
+  chicken: { baseCost: 250, cooldown: 50000 },
+  sheep: { baseCost: 350, cooldown: 80000 },
+  pig: { baseCost: 600, cooldown: 120000 },
+  goat: { baseCost: 400, cooldown: 90000 },
+  rabbit: { baseCost: 150, cooldown: 60000 },
+  duck: { baseCost: 200, cooldown: 70000 }
+};
+
       const config = animalConfig[action.animal];
       const moneyEarned = config ? config.baseCost * animal.count : 0;
 
@@ -232,7 +302,7 @@ count: crop.count,
       const resourceAmount = state.resources[resource] || 0;
       const sellAmount = Math.min(amount, resourceAmount);
       if (sellAmount <= 0) return state;
-      const prices = { wheat: 15, corn: 30, eggs: 5, milk: 10 };
+      const prices: { [key: string]: number } = { wheat: 15, corn: 30, eggs: 5, milk: 10 };
       const price = prices[resource] || 1;
       return {
         ...state,

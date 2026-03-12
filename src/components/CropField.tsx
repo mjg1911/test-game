@@ -132,7 +132,7 @@ const emoji = crop === 'wheat' ? '🌾' : '🌽';
             </div>
             {(data?.farmers ?? 0) > 0 && (
               <div style={{ fontSize: 6, color: '#22c55e', marginBottom: 4 }}>
-                Each farmer sells up to 10 crops per timer
+                Your farmer sells up to {(data?.farmers ?? 0) * 10} crops per timer
               </div>
             )}
             <button 
