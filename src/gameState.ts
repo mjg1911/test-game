@@ -1,25 +1,25 @@
 export interface CropData {
   count: number;
-  plantedAt: number | null; // timestamp
-  growthTime: number;
+  lastHarvest: number | null;
+  cooldown: number;
 }
 
 export interface AnimalData {
   count: number;
-  produceReady: boolean;
-  produceType: string; // 'eggs', 'milk', 'wool'
-  collectCooldown: number;
+  lastHarvest: number | null;
+  cooldown: number;
+  produceType: string;
 }
 
 export function getInitialGameState() {
   return {
     crops: {
-      wheat: { count: 0, plantedAt: null, growthTime: 5000 },
-      corn: { count: 0, plantedAt: null, growthTime: 8000 }
+      wheat: { count: 0, lastHarvest: null, cooldown: 5000 },
+      corn: { count: 0, lastHarvest: null, cooldown: 8000 }
     },
     animals: {
-      cow: { count: 0, produceReady: false, produceType: 'milk', collectCooldown: 10000 },
-      chicken: { count: 0, produceReady: false, produceType: 'eggs', collectCooldown: 5000 }
+      cow: { count: 0, lastHarvest: null, cooldown: 10000, produceType: 'milk' },
+      chicken: { count: 0, lastHarvest: null, cooldown: 5000, produceType: 'eggs' }
     },
     resources: {
       money: 50,

@@ -17,12 +17,12 @@ describe('GameStateProvider', () => {
     const { result } = renderHook(() => useGameStateContext(), { wrapper });
     expect(result.current.state).toMatchObject({
       crops: {
-        wheat: { count: 0, plantedAt: null, growthTime: expect.any(Number) },
-        corn: { count: 0, plantedAt: null, growthTime: expect.any(Number) },
+        wheat: { count: 0, lastHarvest: null, cooldown: expect.any(Number) },
+        corn: { count: 0, lastHarvest: null, cooldown: expect.any(Number) },
       },
       animals: {
-        cow: { count: 0, produceReady: false, produceType: 'milk' },
-        chicken: { count: 0, produceReady: false, produceType: 'eggs' },
+        cow: { count: 0, lastHarvest: null, cooldown: expect.any(Number), produceType: 'milk' },
+        chicken: { count: 0, lastHarvest: null, cooldown: expect.any(Number), produceType: 'eggs' },
       },
       resources: {
         money: expect.any(Number),
@@ -52,12 +52,12 @@ describe('GameStateProvider', () => {
     // Should remain unchanged
     expect(result.current.state).toMatchObject({
       crops: {
-        wheat: { count: 0, plantedAt: null, growthTime: expect.any(Number) },
-        corn: { count: 0, plantedAt: null, growthTime: expect.any(Number) },
+        wheat: { count: 0, lastHarvest: null, cooldown: expect.any(Number) },
+        corn: { count: 0, lastHarvest: null, cooldown: expect.any(Number) },
       },
       animals: {
-        cow: { count: 0, produceReady: false, produceType: 'milk' },
-        chicken: { count: 0, produceReady: false, produceType: 'eggs' },
+        cow: { count: 0, lastHarvest: null, cooldown: expect.any(Number), produceType: 'milk' },
+        chicken: { count: 0, lastHarvest: null, cooldown: expect.any(Number), produceType: 'eggs' },
       },
       resources: {
         money: expect.any(Number),

@@ -53,6 +53,12 @@ function App() {
     URL.revokeObjectURL(url);
   }
 
+  function handleReset() {
+    if (confirm('Are you sure you want to reset the game? All progress will be lost!')) {
+      dispatch({ type: 'RESET' });
+    }
+  }
+
   return (
     <div className="pixel-container">
       <h1 className="pixel-title">🌾 IDLE FARM 🌾</h1>
@@ -131,6 +137,9 @@ function App() {
             style={{ display: 'none' }}
           />
         </label>
+        <button className="pixel-button secondary" onClick={handleReset} style={{ backgroundColor: '#7f1d1d' }}>
+          Reset Game
+        </button>
       </div>
       {importError && <div style={{ color: '#ff6b6b', textAlign: 'center', marginTop: 12, fontSize: 8 }}>{importError}</div>}
     </div>

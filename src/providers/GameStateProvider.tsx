@@ -10,52 +10,28 @@ export const GameStateContext = createContext({
 
 function reducer(state, action) {
   switch (action.type) {
-    case 'TICK': {
-      const newAnimals = { ...state.animals };
-      Object.entries(newAnimals).forEach(([animalName, animal]) => {
-        if (animal.count > 0 && !animal.produceReady) {
-          // Randomly produce with 10% chance per tick
-          const shouldProduce = Math.random() < 0.1;
-          if (shouldProduce) {
-            newAnimals[animalName] = {
-              ...animal,
-              produceReady: true
-            };
-          }
-        }
-      });
-      return {
-        ...state,
-        animals: newAnimals
-      };
-    }
-    case 'PLANT_CROP': {
+    case 'BUY_PLOT': {
       const cropConfig = {
-        wheat: { cost: 10, growthTime: 5000 },
-        corn: { cost: 20, growthTime: 8000 }
+        wheat: { baseCost: 10, cooldown: 5000 },
+        corn: { baseCost: 20, cooldown: 8000 }
       };
-      const cost = cropConfig[action.crop]?.cost || 10;
-      const growthTime = cropConfig[action.crop]?.growthTime || 5000;
+      const config = cropConfig[action.crop];
+      if (!config) return state;
+      
+      const count = state.crops[action.crop].count;
+      const cost = Math.floor(config.baseCost * Math.pow(1.15, count)); // 15% more each time
+      
+      if (state.resources.money < cost) return state;
 
-      console.log('[PLANT_CROP] action:', action);
-      console.log('[PLANT_CROP] current crop state:', state.crops[action.crop]);
-      console.log('[PLANT_CROP] existing plantedAt:', state.crops[action.crop]?.plantedAt);
-
-      if (state.resources.money < cost) {
-        console.log('[PLANT_CROP] NOT ENOUGH MONEY');
-        return state;
-      }
-      const newPlantedAt = state.crops[action.crop].plantedAt || Date.now();
-      console.log('[PLANT_CROP] new plantedAt:', newPlantedAt);
       return {
         ...state,
         crops: {
           ...state.crops,
           [action.crop]: {
             ...state.crops[action.crop],
-            count: state.crops[action.crop].count + action.amount,
-            plantedAt: newPlantedAt,
-            growthTime,
+            count: count + 1,
+            lastHarvest: count === 0 ? Date.now() : state.crops[action.crop].lastHarvest,
+            cooldown: config.cooldown,
           },
         },
         resources: {
@@ -64,68 +40,85 @@ function reducer(state, action) {
         },
       };
     }
-    case 'HARVEST_CROP': {
-      console.log('[HARVEST_CROP] action:', action);
+    case 'COLLECT_CROP': {
       const crop = state.crops[action.crop];
-      console.log('[HARVEST_CROP] crop:', crop);
-      if (!crop || crop.count === 0 || !crop.plantedAt) {
-        console.log('[HARVEST_CROP] invalid crop or not planted');
-        return state;
-      }
-      const isReady = Date.now() - crop.plantedAt >= crop.growthTime;
-      console.log('[HARVEST_CROP] isReady:', isReady, 'elapsed:', Date.now() - crop.plantedAt, 'growthTime:', crop.growthTime);
-      if (!isReady) return state;
+      if (!crop || crop.count === 0) return state;
+      
+      const lastHarvest = crop.lastHarvest || Date.now();
+      const elapsed = Date.now() - lastHarvest;
+      if (elapsed < crop.cooldown) return state; // Not ready
+
+      const sellPrices = { wheat: 15, corn: 30 };
+      const profit = (sellPrices[action.crop] || 15) * crop.count;
+
       return {
         ...state,
         resources: {
           ...state.resources,
-          money: state.resources.money + (action.profit || 0),
+          money: state.resources.money + profit,
           [action.crop]: (state.resources[action.crop] || 0) + crop.count,
         },
         crops: {
           ...state.crops,
           [action.crop]: {
             ...crop,
-            count: 0,
-            plantedAt: null,
+            lastHarvest: Date.now(),
           },
         },
       };
     }
     case 'BUY_ANIMAL': {
       const animal = state.animals[action.animal];
-      if (state.resources.money < action.cost) return state;
+      const animalConfig = {
+        cow: { baseCost: 100, cooldown: 10000 },
+        chicken: { baseCost: 25, cooldown: 5000 }
+      };
+      const config = animalConfig[action.animal];
+      if (!config) return state;
+
+      const count = state.animals[action.animal].count;
+      const cost = Math.floor(config.baseCost * Math.pow(1.15, count)); // 15% more each time
+      
+      if (state.resources.money < cost) return state;
+
       return {
         ...state,
         animals: {
           ...state.animals,
           [action.animal]: {
             ...animal,
-            count: animal.count + action.amount,
+            count: count + 1,
+            lastHarvest: count === 0 ? Date.now() : state.animals[action.animal].lastHarvest,
+            cooldown: config.cooldown,
           },
         },
         resources: {
           ...state.resources,
-          money: state.resources.money - action.cost,
+          money: state.resources.money - Math.floor(config.baseCost * Math.pow(1.15, count)),
         },
       };
     }
-    case 'COLLECT_PRODUCE': {
+    case 'COLLECT_ANIMAL': {
       const animal = state.animals[action.animal];
-      if (!animal || !animal.produceReady || animal.count === 0) return state;
+      if (!animal || animal.count === 0) return state;
+      
+      const lastHarvest = animal.lastHarvest || Date.now();
+      const elapsed = Date.now() - lastHarvest;
+      if (elapsed < animal.cooldown) return state;
+
       const produceType = animal.produceType;
       return {
         ...state,
+        resources: {
+          ...state.resources,
+          [produceType]: (state.resources[produceType] || 0) + animal.count,
+        },
         animals: {
           ...state.animals,
           [action.animal]: {
             ...animal,
-            produceReady: false,
+            lastHarvest: Date.now(),
           },
-        },
-        resources: {
-          ...state.resources,
-          [produceType]: (state.resources[produceType] || 0) + animal.count,
         },
       };
     }

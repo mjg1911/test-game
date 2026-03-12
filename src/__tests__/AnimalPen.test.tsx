@@ -1,15 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import AnimalPen from '../components/AnimalPen';
 
-import userEvent from '@testing-library/user-event';
-
-test('renders AnimalPen with animal selection', async () => {
+test('renders AnimalPen with animal grid', () => {
   render(<AnimalPen />);
-  expect(screen.getByText('Select Animal:')).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /Buy/i })).toBeInTheDocument();
-  expect(screen.getByText(/Collect/i)).toBeInTheDocument();
-  await userEvent.selectOptions(screen.getByRole('combobox'), 'cow');
-  await waitFor(() => {
-    expect(screen.getByRole('button', { name: /Buy/i })).toBeInTheDocument();
-  });
+  expect(screen.getByText(/Chicken/)).toBeInTheDocument();
+  expect(screen.getByText(/Cow/)).toBeInTheDocument();
+  expect(screen.getAllByRole('button', { name: /Buy/i })).toHaveLength(2);
+  expect(screen.getAllByRole('button', { name: /Collect/i })).toHaveLength(2);
 });
