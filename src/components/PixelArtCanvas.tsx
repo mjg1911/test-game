@@ -1,9 +1,9 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import useCanvasDraw from '../hooks/useCanvasDraw';
 
 const PixelArtCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  useCanvasDraw(canvasRef);
+  useCanvasDraw(canvasRef); // This now draws from game state
 
   return (
     <canvas
