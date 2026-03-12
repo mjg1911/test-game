@@ -28,7 +28,7 @@ const CropField: React.FC = () => {
 
   const handleHarvest = (crop: string) => {
     const cropData = state.crops[crop];
-    const isReady = cropData && cropData.count > 0 && cropData.plantedAt && (Date.now() - cropData.plantedAt >= cropData.growthTime);
+    const isReady = cropData && cropData.count > 0 && cropData.plantedAt !== null && (Date.now() - cropData.plantedAt >= cropData.growthTime);
     if (isReady) {
       const profit = CROP_CONFIG[crop].sellPrice * cropData.count;
       dispatch({ type: 'HARVEST_CROP', crop, amount: cropData.count, profit });
@@ -77,7 +77,7 @@ const CropField: React.FC = () => {
       </div>
       <div className="pixel-grid">
         {Object.entries(state.crops).map(([crop, data]: [string, any]) => {
-          const progress = data.plantedAt
+          const progress = data.plantedAt !== null
             ? Math.min(100, Math.floor(((Date.now() - data.plantedAt) / data.growthTime) * 100))
             : 0;
           return (
