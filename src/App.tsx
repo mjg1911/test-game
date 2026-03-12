@@ -1,15 +1,18 @@
 import CropField from './components/CropField';
 import { useState } from 'react';
 import { useGameStateContext } from './providers/GameStateProvider';
-import './App.css';
+import './pixelTheme.css';
 import ResourcePanel from './components/ResourcePanel';
 import AnimalPen from './components/AnimalPen';
 import UpgradeShop from './components/UpgradeShop';
 import AutomationControls from './components/AutomationControls';
 import PixelArtCanvas from './components/PixelArtCanvas';
 
+type TabType = 'crops' | 'animals' | 'upgrades' | 'automation';
+
 function App() {
   const { state, dispatch } = useGameStateContext();
+  const [activeTab, setActiveTab] = useState<TabType>('crops');
   const [importError, setImportError] = useState('');
 
   function handleImport(e) {
@@ -51,35 +54,85 @@ function App() {
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '1em', fontFamily: 'monospace' }}>
-      <h1 style={{ textAlign: 'center', color: '#4a7c23' }}>🌾 Idle Farm</h1>
+    <div className="pixel-container">
+      <h1 className="pixel-title">🌾 IDLE FARM 🌾</h1>
       <ResourcePanel />
-      <AutomationControls />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1em', marginTop: '1em' }}>
-        <CropField />
-        <AnimalPen />
+      
+      <div className="pixel-tabs">
+        <button 
+          className={`pixel-tab ${activeTab === 'crops' ? 'active' : ''}`}
+          onClick={() => setActiveTab('crops')}
+        >
+          🌱 Crops
+        </button>
+        <button 
+          className={`pixel-tab ${activeTab === 'animals' ? 'active' : ''}`}
+          onClick={() => setActiveTab('animals')}
+        >
+          🐄 Animals
+        </button>
+        <button 
+          className={`pixel-tab ${activeTab === 'upgrades' ? 'active' : ''}`}
+          onClick={() => setActiveTab('upgrades')}
+        >
+          ⬆️ Upgrades
+        </button>
+        <button 
+          className={`pixel-tab ${activeTab === 'automation' ? 'active' : ''}`}
+          onClick={() => setActiveTab('automation')}
+        >
+          ⚙️ Auto
+        </button>
       </div>
-      <div style={{ marginTop: '1em' }}>
-        <UpgradeShop />
-      </div>
-      <div style={{ marginTop: '1em', textAlign: 'center' }}>
+
+      {activeTab === 'crops' && (
+        <div className="pixel-panel pixel-panel-crops">
+          <h3 className="pixel-panel-title">🌱 CROP FIELD</h3>
+          <CropField />
+        </div>
+      )}
+
+      {activeTab === 'animals' && (
+        <div className="pixel-panel pixel-panel-animals">
+          <h3 className="pixel-panel-title">🐄 ANIMAL PEN</h3>
+          <AnimalPen />
+        </div>
+      )}
+
+      {activeTab === 'upgrades' && (
+        <div className="pixel-panel">
+          <h3 className="pixel-panel-title">⬆️ UPGRADE SHOP</h3>
+          <UpgradeShop />
+        </div>
+      )}
+
+      {activeTab === 'automation' && (
+        <div className="pixel-panel">
+          <h3 className="pixel-panel-title">⚙️ AUTOMATION</h3>
+          <AutomationControls />
+        </div>
+      )}
+
+      <div className="pixel-panel">
+        <h3 className="pixel-panel-title">🎨 FARM MAP</h3>
         <PixelArtCanvas />
       </div>
-      <div style={{ marginTop: '2em', textAlign: 'center' }}>
-        <button onClick={handleExport} style={{ marginRight: '0.5em' }}>
+      
+      <div className="pixel-footer">
+        <button className="pixel-button secondary" onClick={handleExport}>
           Export Save
         </button>
-        <label style={{ display: 'inline-block' }}>
+        <label className="pixel-button secondary" style={{ display: 'inline-block', cursor: 'pointer' }}>
           Import Save
           <input
             type="file"
             accept="application/json"
             onChange={handleImport}
-            style={{ marginLeft: 8 }}
+            style={{ display: 'none' }}
           />
         </label>
-        {importError && <div style={{ color: 'red', marginTop: 8 }}>{importError}</div>}
       </div>
+      {importError && <div style={{ color: '#ff6b6b', textAlign: 'center', marginTop: 12, fontSize: 8 }}>{importError}</div>}
     </div>
   );
 }

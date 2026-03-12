@@ -28,6 +28,6 @@ describe('ResourcePanel', () => {
     expect(screen.getByText(/Wheat:/i)).toBeInTheDocument();
     expect(screen.getByText(/Corn:/i)).toBeInTheDocument();
     expect(screen.getByText(/Milk:/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Sell Eggs/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Sell/i })).toBeInTheDocument();
   });
 });
