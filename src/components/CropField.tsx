@@ -3,34 +3,35 @@ import { useGameStateContext } from '../providers/GameStateProvider';
 import Popup from './Popup';
 
 const CROP_CONFIG = {
-  wheat: { baseCost: 10, cooldown: 5000 },
-  corn: { baseCost: 20, cooldown: 8000 }
+  wheat: { baseCost: 10, cooldown: 5000, sellPrice: 15 },
+  corn: { baseCost: 20, cooldown: 8000, sellPrice: 30 }
 };
 
 const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.15, count));
 
 const CropField: React.FC = () => {
   const { state, dispatch } = useGameStateContext();
-  const [tick, setTick] = useState(0);
+  
   const [popup, setPopup] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
+  const [, setTick] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => setTick(t => t + 1), 1000);
+    const interval = setInterval(() => setTick(t => t + 1), 100);
     return () => clearInterval(interval);
   }, []);
 
-  const getTimeRemaining = (lastHarvest: number | null, cooldown: number) => {
-    if (!lastHarvest) return { ready: true, text: 'READY' };
-    const elapsed = Date.now() - lastHarvest;
-    const remaining = Math.max(0, cooldown - elapsed);
-    if (remaining === 0) return { ready: true, text: '⏰ READY!' };
-    const seconds = Math.ceil(remaining / 1000);
-    return { ready: false, text: `⏳ ${seconds}s` };
-  };
+  
 
-  const handleBuy = (crop: string) => {
-    const config = CROP_CONFIG[crop as keyof typeof CROP_CONFIG];
-    const currentCost = getCost(config.baseCost, state.crops[crop].count);
+  const getProgress = (lastHarvest: number | null, cooldown: number) => {
+    if (!lastHarvest) return 100;
+    const elapsed = Date.now() - lastHarvest;
+    const progress = Math.min(100, Math.floor((elapsed / cooldown) * 100));
+    return progress;
+};
+
+  const handleBuy = (crop: keyof typeof CROP_CONFIG) => {
+    const config = CROP_CONFIG[crop];
+    const currentCost = getCost(config.baseCost, state.crops[crop]?.count ?? 0);
     if (state.resources.money >= currentCost) {
       dispatch({ type: 'BUY_PLOT', crop });
     } else {
@@ -38,68 +39,72 @@ const CropField: React.FC = () => {
     }
   };
 
-  const handleCollect = (crop: string) => {
+  const handleCollect = (crop: keyof typeof CROP_CONFIG) => {
     const cropData = state.crops[crop];
-    if (cropData.count === 0) {
+    if (!cropData || cropData.count === 0) {
       setPopup({ message: 'Buy a plot first!', type: 'info' });
       return;
     }
-    const elapsed = cropData.lastHarvest ? Date.now() - cropData.lastHarvest : 0;
-    if (elapsed < cropData.cooldown) {
-      setPopup({ message: 'Not ready yet!', type: 'info' });
+    const progress = getProgress(cropData.lastHarvest, cropData.cooldown);
+    if (progress < 100) {
+      setPopup({ message: 'Crop not ready!', type: 'info' });
       return;
     }
     dispatch({ type: 'COLLECT_CROP', crop });
   };
 
+// Remove tick, timer, and getTimeRemaining
+
+
   return (
     <div>
       <div className="pixel-grid">
-        {Object.entries(state.crops).map(([crop, data]: [string, any]) => {
-          const timeInfo = getTimeRemaining(data.lastHarvest, data.cooldown);
-          const cropCost = getCost(CROP_CONFIG[crop as keyof typeof CROP_CONFIG].baseCost, data.count);
-          const emoji = crop === 'wheat' ? '🌾' : '🌽';
-          return (
-            <div key={crop} className="pixel-stat">
-              <div className="pixel-stat-label">
-                {emoji} {crop.charAt(0).toUpperCase() + crop.slice(1)}
-              </div>
-              <div className="pixel-stat-value">
-                Plots: {data.count} | Cost: ${cropCost}
-              </div>
-              <div style={{ 
-                fontSize: 7, 
-                color: timeInfo?.ready ? '#22c55e' : '#8b5e3c', 
-                marginTop: 4,
-                fontWeight: timeInfo?.ready ? 'bold' : 'normal'
-              }}>
-                {data.count > 0 ? (
-                  timeInfo?.ready ? (
-                    <span style={{ animation: 'pulse 1s infinite', display: 'inline-block' }}>
-                      {timeInfo.text}
-                    </span>
-                  ) : timeInfo?.text || '—'
-                ) : 'Buy your first plot!'}
-              </div>
-              <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
-                <button 
-                  className="pixel-button" 
-                  style={{ fontSize: 14, padding: '12px 24px' }}
-                  onClick={() => handleBuy(crop)}
-                >
-                  Buy
-                </button>
-                <button 
-                  className="pixel-button" 
-                  style={{ fontSize: 14, padding: '12px 24px' }}
-                  onClick={() => handleCollect(crop)}
-                  disabled={data.count === 0}
-                >
-                  Collect ({state.resources[crop] || 0})
-                </button>
-              </div>
+        {(Object.keys(CROP_CONFIG) as (keyof typeof CROP_CONFIG)[]).map(crop => {
+  const data = state.crops[crop];
+          
+          const cropCost = getCost(CROP_CONFIG[crop].baseCost, data?.count ?? 0);
+const emoji = crop === 'wheat' ? '🌾' : '🌽';
+    return (
+      <div key={crop} className="pixel-stat">
+        <div className="pixel-stat-label">
+          {emoji} {crop.charAt(0).toUpperCase() + crop.slice(1)}
+        </div>
+        <div className="pixel-stat-value">
+          Plots: {data?.count ?? 0} | Cost: ${cropCost}
+        </div>
+        {data?.count > 0 ? (
+          <div>
+            <div className="pixel-progress" style={{ marginTop: 4 }}>
+              <div className="pixel-progress-bar" style={{ width: `${getProgress(data.lastHarvest, data.cooldown)}%` }} />
             </div>
+            <div style={{ fontSize: 7, color: getProgress(data.lastHarvest, data.cooldown) === 100 ? '#22c55e' : '#8b5e3c', marginTop: 4 }}>
+              {getProgress(data.lastHarvest, data.cooldown) === 100 ? 'READY!' : `${getProgress(data.lastHarvest, data.cooldown)}%`}
+            </div>
+          </div>
+        ) : (
+          <div style={{ fontSize: 7, marginTop: 4 }}>Buy your first plot!</div>
+        )}
+        <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+          <button 
+            className="pixel-button" 
+            style={{ fontSize: 14, padding: '12px 24px' }}
+            onClick={() => handleBuy(crop)}
+          >
+            Buy
+          </button>
+          <button 
+            className="pixel-button" 
+            style={{ fontSize: 14, padding: '12px 24px' }}
+            onClick={() => handleCollect(crop)}
+            disabled={data?.count === 0}
+          >
+            Collect (+{(data?.count ?? 0) * CROP_CONFIG[crop].sellPrice})
+          </button>
+        </div>
+      </div>
           );
+
+// Remove unused timer/timeInfo references
         })}
       </div>
       {popup && (
