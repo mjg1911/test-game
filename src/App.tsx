@@ -6,6 +6,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import ResourcePanel from './components/ResourcePanel';
 import AnimalPen from './components/AnimalPen';
+import UpgradeShop from './components/UpgradeShop';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -62,6 +63,7 @@ function App() {
       <ResourcePanel />
       <CropField />
       <AnimalPen />
+<UpgradeShop />
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
