@@ -100,12 +100,12 @@ const CropField: React.FC = () => {
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                 <div>
-                  <div style={{ fontSize: 10, color: '#666' }}>Farms</div>
-                  <div style={{ fontSize: 16, fontWeight: 'bold' }}>{data?.count ?? 0}</div>
+                  <div style={{ fontSize: 10, color: '#555', fontWeight: 'bold' }}>FARMS</div>
+                  <div style={{ fontSize: 18, fontWeight: 'bold', color: '#222' }}>{data?.count ?? 0}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, color: '#666' }}>Cost</div>
-                  <div style={{ fontSize: 16, fontWeight: 'bold' }}>${formatMoney(cropCost)}</div>
+                  <div style={{ fontSize: 10, color: '#555', fontWeight: 'bold' }}>COST</div>
+                  <div style={{ fontSize: 18, fontWeight: 'bold', color: '#222' }}>${formatMoney(cropCost)}</div>
                 </div>
                 <button 
                   className="pixel-button" 
