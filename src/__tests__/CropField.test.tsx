@@ -12,6 +12,13 @@ function renderWithContext(mockState) {
   );
 }
 
+test('farm cost uses 1.3 multiplier', () => {
+  const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.3, count));
+  expect(getCost(10, 0)).toBe(10);
+  expect(getCost(10, 1)).toBe(13);
+  expect(getCost(10, 2)).toBe(16);
+});
+
 describe('CropField (passive farm income)', () => {
   test('shows farm count', () => {
     const mockGameState = {

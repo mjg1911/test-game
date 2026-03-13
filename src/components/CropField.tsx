@@ -11,7 +11,7 @@ const CROP_CONFIG = {
   tomato: { baseCost: 100, cooldown: 21000, sellPrice: 145 }
 };
 
-const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.15, count));
+const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.3, count));
 
 const getUpgradeCost = (level: number) => Math.floor(100 * Math.pow(2, level));
 
