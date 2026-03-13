@@ -62,8 +62,16 @@ const CropField: React.FC = () => {
           
           const fertilizerLevel = data?.fertilizerLevel || 0;
           const irrigationLevel = data?.irrigationLevel || 0;
-          const fertilizerCost = getUpgradeCost(fertilizerLevel);
-          const irrigationCost = getUpgradeCost(irrigationLevel);
+          
+          const getNextUpgrade = () => {
+            if (fertilizerLevel <= irrigationLevel) {
+              return { type: 'fertilizer' as const, level: fertilizerLevel, name: 'Fertilizer' };
+            }
+            return { type: 'irrigation' as const, level: irrigationLevel, name: 'Irrigation' };
+          };
+          
+          const nextUpgrade = getNextUpgrade();
+          const upgradeCost = getUpgradeCost(nextUpgrade.level);
           
           return (
             <div key={crop} className="pixel-stat">
@@ -98,18 +106,10 @@ const CropField: React.FC = () => {
                     <button 
                       className="pixel-button" 
                       style={{ fontSize: 12, padding: '8px 16px' }}
-                      onClick={() => handleUpgrade(crop, 'fertilizer')}
-                      disabled={state.resources.money < fertilizerCost}
+                      onClick={() => handleUpgrade(crop, nextUpgrade.type)}
+                      disabled={state.resources.money < upgradeCost}
                     >
-                      Fertilizer (${fertilizerCost})
-                    </button>
-                    <button 
-                      className="pixel-button" 
-                      style={{ fontSize: 12, padding: '8px 16px' }}
-                      onClick={() => handleUpgrade(crop, 'irrigation')}
-                      disabled={state.resources.money < irrigationCost}
-                    >
-                      Irrigation (${irrigationCost})
+                      Upgrade {nextUpgrade.name} (${upgradeCost})
                     </button>
                   </div>
                 </div>
