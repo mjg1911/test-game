@@ -1,5 +1,11 @@
 import { getInitialGameState } from "../gameState"
 
+test("initial state has upgradeLevel on crops", () => {
+  const state = getInitialGameState();
+  expect(state.crops.wheat.fertilizerLevel).toBe(0);
+  expect(state.crops.wheat.irrigationLevel).toBe(0);
+});
+
 test("initial state has correct structure", () => {
   const state = getInitialGameState();
 expect(state.crops.wheat.count).toBe(0);
