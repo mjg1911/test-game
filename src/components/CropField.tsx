@@ -91,7 +91,12 @@ const emoji = crop === 'wheat' ? '🌾' : '🌽';
     return (
       <div key={crop} className="pixel-stat">
         <div className="pixel-stat-label">
-          {emoji} {crop.charAt(0).toUpperCase() + crop.slice(1)}
+           {emoji} {crop.charAt(0).toUpperCase() + crop.slice(1)}
+           {data?.count > 0 && (
+             <span style={{fontSize:8, color:'#888', marginLeft:6}}>
+               {`+${((Math.min(data.count, (data.farmers ?? 0) * 10) * CROP_CONFIG[crop].sellPrice) / (CROP_CONFIG[crop].cooldown / 1000)).toFixed(2)} $/s`}
+             </span>
+           )}
         </div>
         <div className="pixel-stat-value">
           Plots: {data?.count ?? 0} | Cost: ${cropCost}
