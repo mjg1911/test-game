@@ -109,8 +109,14 @@ const CropField: React.FC = () => {
                 </div>
                 <button 
                   className="pixel-button" 
-                  style={{ fontSize: 11, padding: '8px 16px' }}
+                  style={{ 
+                    fontSize: 11, 
+                    padding: '8px 16px',
+                    background: state.resources.money < cropCost ? '#aaa' : undefined,
+                    cursor: state.resources.money < cropCost ? 'not-allowed' : 'pointer'
+                  }}
                   onClick={() => handleBuyFarm(crop)}
+                  disabled={state.resources.money < cropCost}
                 >
                   Buy
                 </button>
