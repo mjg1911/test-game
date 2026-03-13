@@ -6,6 +6,11 @@ test("initial state has upgradeLevel on crops", () => {
   expect(state.crops.wheat.irrigationLevel).toBe(0);
 });
 
+test("initial state has $30 starting money", () => {
+  const state = getInitialGameState();
+  expect(state.resources.money).toBe(30);
+});
+
 test("initial state has correct structure", () => {
   const state = getInitialGameState();
 expect(state.crops.wheat.count).toBe(0);
@@ -37,7 +42,7 @@ expect(state.crops.tomato.cooldown).toBe(21000);
   expect(state.animals.chicken.lastHarvest).toBeNull();
   expect(state.animals.chicken.cooldown).toBe(50000);
   expect(state.animals.chicken.produceType).toBe('eggs');
-  expect(state.resources.money).toBe(500);
+  expect(state.resources.money).toBe(30);
   expect(state.upgrades.fertilizer.level).toBe(0);
   expect(state.upgrades.fertilizer.cost).toBe(100);
   expect(state.upgrades.autoHarvester.level).toBe(0);
