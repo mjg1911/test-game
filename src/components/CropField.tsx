@@ -84,15 +84,15 @@ const CropField: React.FC = () => {
           return (
             <div key={crop} className="pixel-stat" style={{ 
               padding: 12, 
-              background: hasFarms ? '#f0f4e8' : '#f5f5f5', 
+              background: hasFarms ? '#e8ede3' : '#f5f5f5', 
               borderRadius: 8, 
-              border: hasFarms ? '2px solid #4a7c23' : '1px solid #ddd',
-              boxShadow: hasFarms ? '0 2px 8px rgba(74, 124, 35, 0.3)' : 'none'
+              border: hasFarms ? '2px solid #5a7c43' : '1px solid #ddd',
+              boxShadow: hasFarms ? '0 2px 6px rgba(0,0,0,0.15)' : 'none'
             }}>
               <div className="pixel-stat-label" style={{ fontSize: 14, marginBottom: 4 }}>
                 {emoji} {crop.charAt(0).toUpperCase() + crop.slice(1)}
                 {hasFarms && (
-                  <span style={{ fontSize: 11, color: '#4a7c23', marginLeft: 8, fontWeight: 'bold', background: '#d4e6ad', padding: '2px 6px', borderRadius: 4 }}>
+                  <span style={{ fontSize: 11, color: '#3d5a2a', marginLeft: 8, fontWeight: 'bold', background: '#c9d9b0', padding: '2px 6px', borderRadius: 4 }}>
                     +{formatMoney(incomePerSecond)}/s
                   </span>
                 )}
