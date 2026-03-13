@@ -1,4 +1,5 @@
 import { getInitialGameState } from "../gameState"
+import { cropConfig, reducer } from "../providers/GameStateProvider"
 
 test("initial state has upgradeLevel on crops", () => {
   const state = getInitialGameState();
@@ -9,6 +10,15 @@ test("initial state has upgradeLevel on crops", () => {
 test("initial state has $30 starting money", () => {
   const state = getInitialGameState();
   expect(state.resources.money).toBe(30);
+});
+
+test("farm cost multiplier is 1.3", () => {
+  const state = getInitialGameState();
+  state.crops.wheat.count = 1;
+  state.resources.money = 100;
+  const newState = reducer(state, { type: 'BUY_PLOT', crop: 'wheat' });
+  const expectedCost = Math.floor(cropConfig.wheat.baseCost * Math.pow(1.3, 1));
+  expect(state.resources.money - newState.resources.money).toBe(expectedCost);
 });
 
 test("initial state has correct structure", () => {

@@ -3,7 +3,7 @@ import { getInitialGameState } from '../gameState';
 
 const UPGRADE_BASE_COST = 100;
 const UPGRADE_COST_EXPONENT = 2;
-const INCOME_MULTIPLIER = 1.15;
+const INCOME_MULTIPLIER = 1.3;
 
 const SELL_PRICES: Record<string, number> = {
   wheat: 15, corn: 30, sunflower: 45, peas: 65, pumpkin: 85, potato: 110, tomato: 145
