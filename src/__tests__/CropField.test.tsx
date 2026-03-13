@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
+import { vi } from 'vitest';
 import CropField from '../components/CropField';
 import { GameStateContext } from '../providers/GameStateProvider';
 
@@ -12,7 +13,7 @@ function renderWithContext(mockState) {
 }
 
 describe('CropField (passive farm income)', () => {
-  test('shows farm count instead of plot count', () => {
+  test('shows farm count', () => {
     const mockGameState = {
       state: {
         crops: {
@@ -24,10 +25,10 @@ describe('CropField (passive farm income)', () => {
       dispatch: vi.fn(),
     };
     renderWithContext(mockGameState);
-    expect(screen.getAllByText(/Farms:/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Farms/)[0]).toBeInTheDocument();
   });
 
-  test('shows upgrade buttons for each crop with farms', () => {
+  test('shows buy button', () => {
     const mockGameState = {
       state: {
         crops: {
@@ -39,10 +40,10 @@ describe('CropField (passive farm income)', () => {
       dispatch: vi.fn(),
     };
     renderWithContext(mockGameState);
-    expect(screen.getAllByText(/Buy Farm/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Buy/).length).toBeGreaterThan(0);
   });
 
-  test('shows upgrade buttons for fertilizer and irrigation when farm exists', () => {
+  test('shows upgrade info when farm exists', () => {
     const mockGameState = {
       state: {
         crops: {
@@ -54,12 +55,12 @@ describe('CropField (passive farm income)', () => {
       dispatch: vi.fn(),
     };
     renderWithContext(mockGameState);
-    const wheatSection = screen.getByText(/Wheat/).closest('.pixel-stat');
-    expect(within(wheatSection!).getByText(/Fertilizer Lv.1/)).toBeInTheDocument();
-    expect(within(wheatSection!).getByText(/Irrigation Lv.0/)).toBeInTheDocument();
+    const wheatSection = screen.getByText(/Wheat/).closest('.pixel-stat') as HTMLElement;
+    expect(within(wheatSection).getByText(/Fertilizer 1/)).toBeInTheDocument();
+    expect(within(wheatSection).getByText(/Irrigation 0/)).toBeInTheDocument();
   });
 
-  test('shows passive $/s when farm exists', () => {
+  test('shows passive income when farm exists', () => {
     const mockGameState = {
       state: {
         crops: {
@@ -71,7 +72,7 @@ describe('CropField (passive farm income)', () => {
       dispatch: vi.fn(),
     };
     renderWithContext(mockGameState);
-    const wheatSection = screen.getByText(/Wheat/).closest('.pixel-stat');
-    expect(within(wheatSection!).getByText(/\$\/s/)).toBeInTheDocument();
+    const wheatSection = screen.getByText(/Wheat/).closest('.pixel-stat') as HTMLElement;
+    expect(within(wheatSection).getByText(/\/s/)).toBeInTheDocument();
   });
 });

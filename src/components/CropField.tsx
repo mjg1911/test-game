@@ -53,12 +53,12 @@ const CropField: React.FC = () => {
         {(Object.keys(CROP_CONFIG) as (keyof typeof CROP_CONFIG)[]).map(crop => {
           const data = state.crops[crop];
           const cropCost = getCost(CROP_CONFIG[crop].baseCost, data?.count ?? 0);
-          const emoji = crop === 'wheat' ? '🌾' : '🌽';
+          const emoji = crop === 'wheat' ? '🌾' : crop === 'corn' ? '🌽' : '🌻';
           
           const baseIncome = (data?.count ?? 0) * CROP_CONFIG[crop].sellPrice;
           const fertilizerMultiplier = 1 + ((data?.fertilizerLevel || 0) * 0.25);
           const irrigationMultiplier = 1 + ((data?.irrigationLevel || 0) * 0.1);
-          const incomePerSecond = (baseIncome * fertilizerMultiplier * irrigationMultiplier) / (CROP_CONFIG[crop].cooldown / 1000);
+          const incomePerSecond = Math.floor((baseIncome * fertilizerMultiplier * irrigationMultiplier) / (CROP_CONFIG[crop].cooldown / 1000));
           
           const fertilizerLevel = data?.fertilizerLevel || 0;
           const irrigationLevel = data?.irrigationLevel || 0;
@@ -73,43 +73,56 @@ const CropField: React.FC = () => {
           const nextUpgrade = getNextUpgrade();
           const upgradeCost = getUpgradeCost(nextUpgrade.level);
           
+          const formatMoney = (n: number) => {
+            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+            if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+            return n.toString();
+          };
+          
+          const hasFarms = (data?.count ?? 0) > 0;
+          
           return (
-            <div key={crop} className="pixel-stat">
-              <div className="pixel-stat-label">
+            <div key={crop} className="pixel-stat" style={{ padding: 12, background: hasFarms ? 'rgba(0,100,0,0.1)' : 'rgba(0,0,0,0.05)', borderRadius: 8, border: hasFarms ? '1px solid rgba(0,150,0,0.3)' : '1px solid rgba(0,0,0,0.1)' }}>
+              <div className="pixel-stat-label" style={{ fontSize: 14, marginBottom: 4 }}>
                 {emoji} {crop.charAt(0).toUpperCase() + crop.slice(1)}
-                {data?.count > 0 && (
-                  <span style={{fontSize:8, color:'#888', marginLeft:6}}>
-                    +${incomePerSecond.toFixed(2)} $/s
+                {hasFarms && (
+                  <span style={{ fontSize: 11, color: '#22c55e', marginLeft: 8, fontWeight: 'bold' }}>
+                    +${formatMoney(incomePerSecond)}/s
                   </span>
                 )}
               </div>
-              <div className="pixel-stat-value">
-                Farms: {data?.count ?? 0} | Cost: ${cropCost}
-              </div>
               
-              <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                <div>
+                  <div style={{ fontSize: 10, color: '#666' }}>Farms</div>
+                  <div style={{ fontSize: 16, fontWeight: 'bold' }}>{data?.count ?? 0}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: '#666' }}>Cost</div>
+                  <div style={{ fontSize: 16, fontWeight: 'bold' }}>${formatMoney(cropCost)}</div>
+                </div>
                 <button 
                   className="pixel-button" 
-                  style={{ fontSize: 14, padding: '12px 24px' }}
+                  style={{ fontSize: 11, padding: '8px 16px' }}
                   onClick={() => handleBuyFarm(crop)}
                 >
-                  Buy Farm
+                  Buy
                 </button>
               </div>
               
-              {data?.count > 0 && (
-                <div style={{ marginTop: 12, padding: 8, background: 'rgba(0,0,0,0.1)', borderRadius: 4 }}>
-                  <div style={{ fontSize: 7, marginBottom: 4 }}>
-                    Fertilizer Lv.{fertilizerLevel} | Irrigation Lv.{irrigationLevel}
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
+              {hasFarms && (
+                <div style={{ marginTop: 12, paddingTop: 8, borderTop: '1px dashed rgba(0,0,0,0.2)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontSize: 9, color: '#888' }}>
+                      ↑ Fertilizer {fertilizerLevel} | Irrigation {irrigationLevel}
+                    </div>
                     <button 
                       className="pixel-button" 
-                      style={{ fontSize: 12, padding: '8px 16px' }}
+                      style={{ fontSize: 10, padding: '6px 12px' }}
                       onClick={() => handleUpgrade(crop, nextUpgrade.type)}
                       disabled={state.resources.money < upgradeCost}
                     >
-                      Upgrade {nextUpgrade.name} (${upgradeCost})
+                      {nextUpgrade.name} (${formatMoney(upgradeCost)})
                     </button>
                   </div>
                 </div>

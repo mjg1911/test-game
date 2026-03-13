@@ -41,6 +41,13 @@ const ResourcePanel: React.FC = () => {
   }
 
   const displayMoney = Math.floor(state.resources.money);
+  const displayPassiveIncome = Math.floor(passiveIncomePerSec);
+  
+  const formatMoney = (n: number) => {
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+    return n.toString();
+  };
 
   return (
     <div className="pixel-panel" style={{ marginBottom: 16 }}>
@@ -49,12 +56,12 @@ const ResourcePanel: React.FC = () => {
         <div className="pixel-resource">
           <span className="pixel-resource-icon">💵</span>
           <span className="pixel-resource-label">Money:</span>
-          <span className="pixel-resource-value" data-testid="money">{displayMoney}</span>
+          <span className="pixel-resource-value" data-testid="money">${formatMoney(displayMoney)}</span>
         </div>
         <div className="pixel-resource">
           <span className="pixel-resource-icon">⏳</span>
-          <span className="pixel-resource-label">Passive income / sec:</span>
-          <span className="pixel-resource-value" data-testid="passive-income">{Math.floor(passiveIncomePerSec)}</span>
+          <span className="pixel-resource-label">Passive income:</span>
+          <span className="pixel-resource-value" data-testid="passive-income">+${formatMoney(displayPassiveIncome)}/s</span>
         </div>
       </div>
     </div>
