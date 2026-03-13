@@ -2,13 +2,13 @@ import React from 'react';
 import { useGameStateContext } from '../providers/GameStateProvider';
 
 const SELL_PRICES: Record<string, number> = {
-  wheat: 15,
-  corn: 30,
-  sunflower: 45,
-  peas: 65,
-  pumpkin: 85,
-  potato: 110,
-  tomato: 145
+  wheat: 1.5,
+  corn: 3,
+  sunflower: 4.5,
+  peas: 6.5,
+  pumpkin: 8.5,
+  potato: 11,
+  tomato: 14.5
 };
 
 const BASE_COOLDOWNS: Record<string, number> = {
@@ -21,7 +21,7 @@ const BASE_COOLDOWNS: Record<string, number> = {
   tomato: 21000
 };
 
-const INCOME_MULTIPLIER = 1.15;
+const INCOME_MULTIPLIER = 1.3;
 
 const ResourcePanel: React.FC = () => {
   const { state } = useGameStateContext();

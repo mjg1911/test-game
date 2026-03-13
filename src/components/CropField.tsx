@@ -58,7 +58,7 @@ const CropField: React.FC = () => {
           const baseIncome = (data?.count ?? 0) * CROP_CONFIG[crop].sellPrice;
           const fertilizerMultiplier = 1 + ((data?.fertilizerLevel || 0) * 0.25);
           const irrigationMultiplier = 1 + ((data?.irrigationLevel || 0) * 0.1);
-          const incomePerSecond = Math.floor((baseIncome * fertilizerMultiplier * irrigationMultiplier) / (CROP_CONFIG[crop].cooldown / 1000));
+          const incomePerSecond = (baseIncome * fertilizerMultiplier * irrigationMultiplier) / (CROP_CONFIG[crop].cooldown / 1000);
           
           const fertilizerLevel = data?.fertilizerLevel || 0;
           const irrigationLevel = data?.irrigationLevel || 0;
