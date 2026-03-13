@@ -274,7 +274,7 @@ const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = 
 };
 
       const config = animalConfig[action.animal];
-      const moneyEarned = config ? config.baseCost * animal.count : 0;
+      const moneyEarned = (config ? config.baseCost * animal.count : 0) * 0.1;
 
       return {
         ...state,

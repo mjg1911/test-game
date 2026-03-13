@@ -84,6 +84,17 @@ describe('GameStateProvider', () => {
     });
   });
 
+  describe('COLLECT_ANIMAL', () => {
+    it('animal sell prices reduced to 10%', () => {
+      const state = getInitialGameState();
+      state.animals.chicken.count = 1;
+      state.animals.chicken.lastHarvest = Date.now() - 100000;
+      const newState = reducer(state, { type: 'COLLECT_ANIMAL', animal: 'chicken' });
+      // Should earn 10% of previous (was 250, now 25)
+      expect(newState.resources.money).toBe(55); // 30 + 25
+    });
+  });
+
   describe('ADD_PASSIVE_INCOME', () => {
     it('ADD_PASSIVE_INCOME adds money based on crop farms', () => {
       const initialState = getInitialGameState();
