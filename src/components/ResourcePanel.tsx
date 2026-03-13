@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGameStateContext } from '../providers/GameStateProvider';
 
-const sellPrices = {
+const SELL_PRICES: Record<string, number> = {
   wheat: 15,
   corn: 30,
   sunflower: 45,
@@ -11,28 +11,43 @@ const sellPrices = {
   tomato: 145
 };
 
-const maxPerFarmer = 10;
+const BASE_COOLDOWNS: Record<string, number> = {
+  wheat: 5000,
+  corn: 8000,
+  sunflower: 10000,
+  peas: 12000,
+  pumpkin: 14000,
+  potato: 17000,
+  tomato: 21000
+};
+
+const INCOME_MULTIPLIER = 1.15;
 
 const ResourcePanel: React.FC = () => {
   const { state } = useGameStateContext();
 
-  // Calculate passive income per second
+  // Calculate passive income per second using new farm system
   let passiveIncomePerSec = 0;
   for (const cropKey of Object.keys(state.crops) as (keyof typeof state.crops)[]) {
     const crop = state.crops[cropKey];
-    if (crop && crop.count > 0 && (crop.farmers || 0) > 0) {
-      const sellPrice = sellPrices[cropKey as keyof typeof sellPrices] || 15;
-      let yieldMultiplier = 1;
-      if (state.upgrades && state.upgrades.fertilizer && state.upgrades.fertilizer.level > 0) {
-        yieldMultiplier = 1 + 0.5 * state.upgrades.fertilizer.level;
-      }
-      const farmers = crop.farmers || 0;
-      const toSell = Math.min(farmers * maxPerFarmer, crop.count);
-      const cooldownSec = (crop.cooldown || 5000) / 1000;
-      const perTimer = toSell * sellPrice * yieldMultiplier;
-      passiveIncomePerSec += perTimer / cooldownSec;
+    if (crop && crop.count > 0) {
+      const sellPrice = SELL_PRICES[cropKey] || 15;
+      const cooldown = BASE_COOLDOWNS[cropKey] || 5000;
+      const baseIncomePerFarm = sellPrice / (cooldown / 1000);
+      const upgradeLevel = (crop.fertilizerLevel || 0) + (crop.irrigationLevel || 0);
+      const multiplier = Math.pow(INCOME_MULTIPLIER, upgradeLevel);
+      passiveIncomePerSec += baseIncomePerFarm * crop.count * multiplier;
     }
   }
+
+  const displayMoney = Math.floor(state.resources.money);
+  const displayPassiveIncome = Math.floor(passiveIncomePerSec);
+  
+  const formatMoney = (n: number) => {
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+    return n.toString();
+  };
 
   return (
     <div className="pixel-panel" style={{ marginBottom: 16 }}>
@@ -41,12 +56,12 @@ const ResourcePanel: React.FC = () => {
         <div className="pixel-resource">
           <span className="pixel-resource-icon">💵</span>
           <span className="pixel-resource-label">Money:</span>
-          <span className="pixel-resource-value" data-testid="money">{state.resources.money}</span>
+          <span className="pixel-resource-value" data-testid="money">${formatMoney(displayMoney)}</span>
         </div>
         <div className="pixel-resource">
           <span className="pixel-resource-icon">⏳</span>
-          <span className="pixel-resource-label">Passive income / sec:</span>
-          <span className="pixel-resource-value" data-testid="passive-income">{passiveIncomePerSec.toFixed(2)}</span>
+          <span className="pixel-resource-label">Passive income:</span>
+          <span className="pixel-resource-value" data-testid="passive-income">+${formatMoney(displayPassiveIncome)}/s</span>
         </div>
       </div>
     </div>

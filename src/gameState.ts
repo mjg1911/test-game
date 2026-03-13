@@ -3,6 +3,8 @@ export interface CropData {
   lastHarvest: number | null;
   cooldown: number;
   farmers: number;
+  fertilizerLevel: number;
+  irrigationLevel: number;
 }
 
 export interface AnimalData {
@@ -15,13 +17,13 @@ export interface AnimalData {
 export function getInitialGameState() {
   return {
     crops: {
-      wheat: { count: 0, lastHarvest: null, cooldown: 5000, farmers: 0 },
-      corn: { count: 0, lastHarvest: null, cooldown: 8000, farmers: 0 },
-      sunflower: { count: 0, lastHarvest: null, cooldown: 10000, farmers: 0 },
-      peas: { count: 0, lastHarvest: null, cooldown: 12000, farmers: 0 },
-      pumpkin: { count: 0, lastHarvest: null, cooldown: 14000, farmers: 0 },
-      potato: { count: 0, lastHarvest: null, cooldown: 17000, farmers: 0 },
-      tomato: { count: 0, lastHarvest: null, cooldown: 21000, farmers: 0 }
+      wheat: { count: 0, lastHarvest: null, cooldown: 5000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+      corn: { count: 0, lastHarvest: null, cooldown: 8000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+      sunflower: { count: 0, lastHarvest: null, cooldown: 10000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+      peas: { count: 0, lastHarvest: null, cooldown: 12000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+      pumpkin: { count: 0, lastHarvest: null, cooldown: 14000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+      potato: { count: 0, lastHarvest: null, cooldown: 17000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+      tomato: { count: 0, lastHarvest: null, cooldown: 21000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 }
     },
     animals: {
       cow: { count: 0, lastHarvest: null, cooldown: 100000, produceType: 'milk' },
