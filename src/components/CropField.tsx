@@ -93,7 +93,7 @@ const CropField: React.FC = () => {
                 {emoji} {crop.charAt(0).toUpperCase() + crop.slice(1)}
                 {hasFarms && (
                   <span style={{ fontSize: 11, color: '#3d5a2a', marginLeft: 8, fontWeight: 'bold', background: '#c9d9b0', padding: '2px 6px', borderRadius: 4 }}>
-                    +{formatMoney(incomePerSecond)}/s
+                    +{incomePerSecond.toFixed(2)}/s
                   </span>
                 )}
               </div>
