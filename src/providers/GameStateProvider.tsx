@@ -1,6 +1,18 @@
 import React, { createContext, useContext, useReducer } from 'react';
 import { getInitialGameState } from '../gameState';
 
+const UPGRADE_BASE_COST = 100;
+const UPGRADE_COST_EXPONENT = 2;
+const INCOME_MULTIPLIER = 1.15;
+
+const SELL_PRICES: Record<string, number> = {
+  wheat: 15, corn: 30, sunflower: 45, peas: 65, pumpkin: 85, potato: 110, tomato: 145
+};
+
+const BASE_COOLDOWNS: Record<string, number> = {
+  wheat: 5000, corn: 8000, sunflower: 10000, peas: 12000, pumpkin: 14000, potato: 17000, tomato: 21000
+};
+
 const initialState = getInitialGameState();
 
 interface CropConfig {
@@ -20,7 +32,7 @@ export const cropConfig: { [key: string]: CropConfig } = {
 export function getFarmerCost(cropKey: string, farmersOwned: number): number {
   const config = cropConfig[cropKey as keyof typeof cropConfig];
   if (!config) return Infinity;
-  return Math.floor(100 * config.baseCost * Math.pow(1.15, farmersOwned));
+  return Math.floor(UPGRADE_BASE_COST * config.baseCost * Math.pow(INCOME_MULTIPLIER, farmersOwned));
 }
 
 export const GameStateContext = createContext({
@@ -90,9 +102,11 @@ type GameAction =
   | { type: 'COLLECT_ANIMAL'; animal: string }
   | { type: 'SELL_RESOURCES'; resource: string; amount: number }
   | { type: 'UPGRADE'; upgrade: string; cost: number }
-  | { type: 'RESET' };
+  | { type: 'RESET' }
+  | { type: 'ADD_PASSIVE_INCOME'; crop: string }
+  | { type: 'UPGRADE_FARM'; crop: string; upgradeType: 'fertilizer' | 'irrigation' };
 
-function reducer(state: GameState, action: GameAction) {
+export function reducer(state: GameState, action: GameAction) {
   switch (action.type) {
     case 'BUY_PLOT': {
       const crop = state.crops[action.crop];
@@ -102,7 +116,7 @@ function reducer(state: GameState, action: GameAction) {
       if (!config) return state;
       
       const count = crop.count;
-      const cost = Math.floor(config.baseCost * Math.pow(1.15, count)); // 15% more each time
+      const cost = Math.floor(config.baseCost * Math.pow(INCOME_MULTIPLIER, count));
       
       if (state.resources.money < cost) return state;
 
@@ -131,16 +145,7 @@ function reducer(state: GameState, action: GameAction) {
       const elapsed = Date.now() - lastHarvest;
       if (elapsed < crop.cooldown) return state; // Not ready
 
-const sellPrices: { [key: string]: number } = {
-  wheat: 15,
-  corn: 30,
-  sunflower: 45,
-  peas: 65,
-  pumpkin: 85,
-  potato: 110,
-  tomato: 145
-};
-      const profit = (sellPrices[action.crop] || 15) * crop.count;
+      const profit = (SELL_PRICES[action.crop] || 15) * crop.count;
 
       return {
         ...state,
@@ -190,18 +195,8 @@ const sellPrices: { [key: string]: number } = {
       const elapsed = Date.now() - lastHarvest;
       if (elapsed < crop.cooldown) return state; // Not ready
 
-      const sellPrices: Record<string, number> = {
-        wheat: 15,
-        corn: 30,
-        sunflower: 45,
-        peas: 65,
-        pumpkin: 85,
-        potato: 110,
-        tomato: 145
-      };
-      
       const farmers = crop.farmers || 0;
-      const sellPrice = sellPrices[action.crop] || 15;
+      const sellPrice = SELL_PRICES[action.crop] || 15;
       const maxPerFarmer = 10;
       const totalToSell = Math.min(farmers * maxPerFarmer, crop.count);
       const profit = totalToSell * sellPrice;
@@ -333,6 +328,50 @@ const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = 
     }
     case 'RESET':
       return getInitialGameState();
+    case 'ADD_PASSIVE_INCOME': {
+      const crop = state.crops[action.crop as keyof typeof state.crops];
+      if (!crop || crop.count === 0) return state;
+      
+      const sellPrice = SELL_PRICES[action.crop] || 15;
+      const cooldown = BASE_COOLDOWNS[action.crop] || 5000;
+      const baseIncomePerFarm = sellPrice / (cooldown / 1000);
+      const multiplier = Math.pow(INCOME_MULTIPLIER, (crop.fertilizerLevel || 0) + (crop.irrigationLevel || 0));
+      const income = baseIncomePerFarm * crop.count * multiplier;
+      
+      return {
+        ...state,
+        resources: {
+          ...state.resources,
+          money: state.resources.money + income,
+        },
+      };
+    }
+    case 'UPGRADE_FARM': {
+      const crop = state.crops[action.crop as keyof typeof state.crops];
+      if (!crop || crop.count === 0) return state;
+      
+      const level = action.upgradeType === 'fertilizer' 
+        ? (crop.fertilizerLevel || 0) 
+        : (crop.irrigationLevel || 0);
+      const cost = Math.floor(UPGRADE_BASE_COST * Math.pow(UPGRADE_COST_EXPONENT, level));
+      
+      if (state.resources.money < cost) return state;
+      
+      return {
+        ...state,
+        crops: {
+          ...state.crops,
+          [action.crop]: {
+            ...crop,
+            [action.upgradeType === 'fertilizer' ? 'fertilizerLevel' : 'irrigationLevel']: level + 1,
+          },
+        },
+        resources: {
+          ...state.resources,
+          money: state.resources.money - cost,
+        },
+      };
+    }
     default:
       return state;
   }
