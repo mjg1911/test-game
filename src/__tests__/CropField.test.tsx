@@ -1,7 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import CropField from '../components/CropField';
-import { getFarmerCost } from '../providers/GameStateProvider';
 import { GameStateContext } from '../providers/GameStateProvider';
 
 function renderWithContext(mockState) {
@@ -12,13 +11,43 @@ function renderWithContext(mockState) {
   );
 }
 
-describe('CropField (auto farmers)', () => {
-  it('renders farmer UI and buy button', () => {
+describe('CropField (passive farm income)', () => {
+  test('shows farm count instead of plot count', () => {
     const mockGameState = {
       state: {
         crops: {
-          wheat: { count: 1, farmers: 0, lastHarvest: null, cooldown: 5000 },
-          corn: { count: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
+          wheat: { count: 1, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 5000 },
+          corn: { count: 0, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
+        },
+        resources: { money: 100000, wheat: 0, corn: 0 },
+      },
+      dispatch: vi.fn(),
+    };
+    renderWithContext(mockGameState);
+    expect(screen.getAllByText(/Farms:/).length).toBeGreaterThan(0);
+  });
+
+  test('shows upgrade buttons for each crop with farms', () => {
+    const mockGameState = {
+      state: {
+        crops: {
+          wheat: { count: 1, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 5000 },
+          corn: { count: 0, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
+        },
+        resources: { money: 100000, wheat: 0, corn: 0 },
+      },
+      dispatch: vi.fn(),
+    };
+    renderWithContext(mockGameState);
+    expect(screen.getAllByText(/Buy Farm/).length).toBeGreaterThan(0);
+  });
+
+  test('shows upgrade buttons for fertilizer and irrigation when farm exists', () => {
+    const mockGameState = {
+      state: {
+        crops: {
+          wheat: { count: 1, fertilizerLevel: 1, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 5000 },
+          corn: { count: 0, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
         },
         resources: { money: 100000, wheat: 0, corn: 0 },
       },
@@ -26,54 +55,16 @@ describe('CropField (auto farmers)', () => {
     };
     renderWithContext(mockGameState);
     const wheatSection = screen.getByText(/Wheat/).closest('.pixel-stat');
-    expect(wheatSection).toBeTruthy();
-    const farmerButton = within(wheatSection).getByRole('button', { name: /Buy Farmer/i });
-    expect(farmerButton).toBeEnabled();
-    expect(farmerButton.textContent).toMatch(/\(\$[0-9]+\)/);
+    expect(within(wheatSection!).getByText(/Fertilizer Lv.1/)).toBeInTheDocument();
+    expect(within(wheatSection!).getByText(/Irrigation Lv.0/)).toBeInTheDocument();
   });
 
-  it('disables Buy Farmer button if funds are not enough', () => {
+  test('shows passive $/s when farm exists', () => {
     const mockGameState = {
       state: {
         crops: {
-          wheat: { count: 1, farmers: 0, lastHarvest: null, cooldown: 5000 },
-          corn: { count: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
-        },
-        resources: { money: 0, wheat: 0, corn: 0 },
-      },
-      dispatch: vi.fn(),
-    };
-    renderWithContext(mockGameState);
-    const wheatSection = screen.getByText(/Wheat/).closest('.pixel-stat');
-    const farmerButton = within(wheatSection).getByRole('button', { name: /Buy Farmer/i });
-    expect(farmerButton).toBeDisabled();
-  });
-
-  it('should not show farmer UI/buttons for crops with zero plots', () => {
-    const mockGameState = {
-      state: {
-        crops: {
-          wheat: { count: 1, farmers: 0, lastHarvest: null, cooldown: 5000 },
-          corn: { count: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
-        },
-        resources: { money: 100000, wheat: 0, corn: 0 },
-      },
-      dispatch: vi.fn(),
-    };
-    renderWithContext(mockGameState);
-    const cornSection = screen.getByText(/Corn/).closest('.pixel-stat');
-    // Farmer UI/button should NOT exist for zero plots
-    expect(within(cornSection).queryByRole('button', { name: /Buy Farmer/i })).toBeNull();
-    // Optionally check for plot prompt
-    expect(within(cornSection).getByText(/Buy your first plot!/i)).toBeInTheDocument();
-  });
-
-  it('shows farmer owned and status text when farmer bought', () => {
-    const mockGameState = {
-      state: {
-        crops: {
-          wheat: { count: 1, farmers: 1, lastHarvest: null, cooldown: 5000 },
-          corn: { count: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
+          wheat: { count: 1, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 5000 },
+          corn: { count: 0, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
         },
         resources: { money: 100000, wheat: 0, corn: 0 },
       },
@@ -81,65 +72,6 @@ describe('CropField (auto farmers)', () => {
     };
     renderWithContext(mockGameState);
     const wheatSection = screen.getByText(/Wheat/).closest('.pixel-stat');
-    expect(within(wheatSection).getByText(/Farmers: 1/i)).toBeInTheDocument();
-    expect(within(wheatSection).getByText(/Auto-sell active/i)).toBeInTheDocument();
-  });
-
-  it('escalates price and disables farmer buy button when buying multiple farmers without enough funds', () => {
-    const mockGameState = {
-      state: {
-        crops: {
-          wheat: { count: 1, farmers: 2, lastHarvest: null, cooldown: 5000 },
-          corn: { count: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
-        },
-        resources: { money: 1300, wheat: 0, corn: 0 },
-      },
-      dispatch: vi.fn(),
-    };
-    renderWithContext(mockGameState);
-    const wheatSection = screen.getByText(/Wheat/).closest('.pixel-stat');
-    const farmerButton = within(wheatSection).getByRole('button', { name: /Buy Farmer/i });
-    // Button should show price > $1300, and be disabled
-    const expectedCost = getFarmerCost('wheat', 2);
-    expect(farmerButton.textContent).toContain(`$${expectedCost}`);
-    expect(farmerButton).toBeDisabled();
-  });
-
-  it('shows correct farmer count and status after buying multiple farmers', () => {
-    const mockGameState = {
-      state: {
-        crops: {
-          wheat: { count: 1, farmers: 4, lastHarvest: null, cooldown: 5000 },
-          corn: { count: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
-        },
-        resources: { money: 100000, wheat: 0, corn: 0 },
-      },
-      dispatch: vi.fn(),
-    };
-    renderWithContext(mockGameState);
-    const wheatSection = screen.getByText(/Wheat/).closest('.pixel-stat');
-    expect(within(wheatSection).getByText(/Farmers: 4/i)).toBeInTheDocument();
-    expect(within(wheatSection).getByText(/Auto-sell active/i)).toBeInTheDocument();
-  });
-
-  it('disables Buy Farmer if plot is removed even with farmers owned', () => {
-    const mockGameState = {
-      state: {
-        crops: {
-          wheat: { count: 0, farmers: 2, lastHarvest: null, cooldown: 5000 },
-          corn: { count: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
-        },
-        resources: { money: 100000, wheat: 0, corn: 0 },
-      },
-      dispatch: vi.fn(),
-    };
-    renderWithContext(mockGameState);
-    const wheatSection = screen.getByText(/Wheat/).closest('.pixel-stat');
-    const farmerButton = within(wheatSection).queryByRole('button', { name: /Buy Farmer/i });
-    expect(farmerButton).toBeNull();
-    // For zero plots, farmer status should NOT be shown
-    if (wheatSection) {
-      expect(within(wheatSection).queryByText(/Farmers: 2/i)).toBeNull();
-    }
+    expect(within(wheatSection!).getByText(/\$\/s/)).toBeInTheDocument();
   });
 });
