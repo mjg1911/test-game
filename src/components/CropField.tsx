@@ -82,12 +82,18 @@ const CropField: React.FC = () => {
           const hasFarms = (data?.count ?? 0) > 0;
           
           return (
-            <div key={crop} className="pixel-stat" style={{ padding: 12, background: hasFarms ? 'rgba(0,100,0,0.1)' : 'rgba(0,0,0,0.05)', borderRadius: 8, border: hasFarms ? '1px solid rgba(0,150,0,0.3)' : '1px solid rgba(0,0,0,0.1)' }}>
+            <div key={crop} className="pixel-stat" style={{ 
+              padding: 12, 
+              background: hasFarms ? '#f0f4e8' : '#f5f5f5', 
+              borderRadius: 8, 
+              border: hasFarms ? '2px solid #4a7c23' : '1px solid #ddd',
+              boxShadow: hasFarms ? '0 2px 8px rgba(74, 124, 35, 0.3)' : 'none'
+            }}>
               <div className="pixel-stat-label" style={{ fontSize: 14, marginBottom: 4 }}>
                 {emoji} {crop.charAt(0).toUpperCase() + crop.slice(1)}
                 {hasFarms && (
-                  <span style={{ fontSize: 11, color: '#22c55e', marginLeft: 8, fontWeight: 'bold' }}>
-                    +${formatMoney(incomePerSecond)}/s
+                  <span style={{ fontSize: 11, color: '#4a7c23', marginLeft: 8, fontWeight: 'bold', background: '#d4e6ad', padding: '2px 6px', borderRadius: 4 }}>
+                    +{formatMoney(incomePerSecond)}/s
                   </span>
                 )}
               </div>
