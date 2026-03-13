@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useGameStateContext } from '../providers/GameStateProvider';
 
 const CROP_CONFIG = {
-  wheat: { baseCost: 10, cooldown: 5000, sellPrice: 15 },
-  corn: { baseCost: 20, cooldown: 8000, sellPrice: 30 },
-  sunflower: { baseCost: 30, cooldown: 10000, sellPrice: 45 },
-  peas: { baseCost: 40, cooldown: 12000, sellPrice: 65 },
-  pumpkin: { baseCost: 50, cooldown: 14000, sellPrice: 85 },
-  potato: { baseCost: 70, cooldown: 17000, sellPrice: 110 },
-  tomato: { baseCost: 100, cooldown: 21000, sellPrice: 145 }
+  wheat: { baseCost: 10, cooldown: 5000, sellPrice: 1.5 },
+  corn: { baseCost: 20, cooldown: 8000, sellPrice: 3 },
+  sunflower: { baseCost: 30, cooldown: 10000, sellPrice: 4.5 },
+  peas: { baseCost: 40, cooldown: 12000, sellPrice: 6.5 },
+  pumpkin: { baseCost: 50, cooldown: 14000, sellPrice: 8.5 },
+  potato: { baseCost: 70, cooldown: 17000, sellPrice: 11 },
+  tomato: { baseCost: 100, cooldown: 21000, sellPrice: 14.5 }
 };
 
 const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.3, count));
