@@ -71,6 +71,19 @@ describe('GameStateProvider', () => {
     });
   });
 
+  describe('BUY_ANIMAL', () => {
+    it('animal cost uses 1.3 multiplier', () => {
+      const initialState = getInitialGameState();
+      initialState.animals.chicken.count = 1;
+      initialState.resources.money = 1000;
+      
+      const newState = reducer(initialState, { type: 'BUY_ANIMAL', animal: 'chicken' });
+      
+      expect(newState.animals.chicken.count).toBe(2);
+      expect(newState.resources.money).toBe(675); // 1000 - 325 = 675 (250 * 1.3^1)
+    });
+  });
+
   describe('ADD_PASSIVE_INCOME', () => {
     it('ADD_PASSIVE_INCOME adds money based on crop farms', () => {
       const initialState = getInitialGameState();

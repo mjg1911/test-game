@@ -233,7 +233,7 @@ const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = 
       if (!config) return state;
 
       const count = state.animals[action.animal].count;
-      const cost = Math.floor(config.baseCost * Math.pow(1.15, count));
+      const cost = Math.floor(config.baseCost * Math.pow(1.3, count));
       
       if (state.resources.money < cost) return state;
 
