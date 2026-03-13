@@ -420,23 +420,22 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state]);
 
-  // Auto-sell timer: check for ready crops with farmers every second
+  // Passive income tick: add income every second for each crop with farms
+  const stateRef = React.useRef(state);
+  stateRef.current = state;
   React.useEffect(() => {
     const interval = setInterval(() => {
-      const cropKeys = Object.keys(state.crops) as (keyof typeof state.crops)[];
+      const currentState = stateRef.current;
+      const cropKeys = Object.keys(currentState.crops) as (keyof typeof currentState.crops)[];
       for (const cropKey of cropKeys) {
-        const crop = state.crops[cropKey];
-        if (crop && crop.count > 0 && (crop.farmers || 0) > 0) {
-          const lastHarvest = crop.lastHarvest || Date.now();
-          const elapsed = Date.now() - lastHarvest;
-          if (elapsed >= crop.cooldown) {
-            dispatch({ type: 'AUTO_SELL', crop: cropKey });
-          }
+        const crop = currentState.crops[cropKey];
+        if (crop && crop.count > 0) {
+          dispatch({ type: 'ADD_PASSIVE_INCOME', crop: cropKey });
         }
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [state]);
+  }, []);
 
   return (
     <GameStateContext.Provider value={{ state, dispatch }}>

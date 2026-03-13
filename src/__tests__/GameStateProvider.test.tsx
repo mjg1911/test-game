@@ -84,6 +84,35 @@ describe('GameStateProvider', () => {
       expect(newState.resources.money).toBe(503);
     });
 
+    it('passive income tick adds money every second for each crop with farms', async () => {
+      vi.useFakeTimers();
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <GameStateProvider>{children}</GameStateProvider>
+      );
+      
+      const { result } = renderHook(() => useGameStateContext(), { wrapper });
+      
+      // Buy a plot of wheat using the real action
+      act(() => {
+        result.current.dispatch({ type: 'BUY_PLOT', crop: 'wheat' });
+      });
+      
+      // Verify state was updated - wheat should have count = 1, money should be less
+      expect(result.current.state.crops.wheat.count).toBe(1);
+      const moneyAfterBuy = result.current.state.resources.money;
+      expect(moneyAfterBuy).toBeLessThan(500);
+      
+      // Advance time by 3 seconds (should add 3 * 3 = 9 for wheat farms)
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+      
+      // Money should have increased
+      expect(result.current.state.resources.money).toBeGreaterThan(moneyAfterBuy);
+      
+      vi.useRealTimers();
+    });
+
     it('UPGRADE_FARM increases upgrade level and deducts cost', () => {
       const initialState = getInitialGameState();
       initialState.crops.wheat.count = 1;
