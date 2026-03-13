@@ -6,7 +6,7 @@ const UPGRADE_COST_EXPONENT = 2;
 const INCOME_MULTIPLIER = 1.3;
 
 const SELL_PRICES: Record<string, number> = {
-  wheat: 15, corn: 30, sunflower: 45, peas: 65, pumpkin: 85, potato: 110, tomato: 145
+  wheat: 1.5, corn: 3, sunflower: 4.5, peas: 6.5, pumpkin: 8.5, potato: 11, tomato: 14.5
 };
 
 const BASE_COOLDOWNS: Record<string, number> = {

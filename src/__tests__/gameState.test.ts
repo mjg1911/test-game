@@ -58,3 +58,13 @@ expect(state.crops.tomato.cooldown).toBe(21000);
   expect(state.upgrades.autoHarvester.level).toBe(0);
   expect(state.upgrades.autoHarvester.cost).toBe(500);
 });
+
+test("crop sell prices are reduced to 10%", () => {
+  const state = getInitialGameState();
+  const withFarm = reducer(
+    { ...state, crops: { ...state.crops, wheat: { ...state.crops.wheat, count: 1 } } },
+    { type: 'ADD_PASSIVE_INCOME', crop: 'wheat' }
+  );
+  const income = withFarm.resources.money - 30;
+  expect(income).toBeLessThan(1);
+});
