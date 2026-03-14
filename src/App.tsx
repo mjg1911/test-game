@@ -6,7 +6,6 @@ import ResourcePanel from './components/ResourcePanel';
 import AnimalPen from './components/AnimalPen';
 import UpgradeShop from './components/UpgradeShop';
 import AutomationControls from './components/AutomationControls';
-import PixelArtCanvas from './components/PixelArtCanvas';
 
 type TabType = 'crops' | 'animals' | 'upgrades' | 'automation';
 
@@ -118,11 +117,6 @@ function App() {
           <AutomationControls />
         </div>
       )}
-
-      <div className="glass-panel">
-        <h3 className="heading-section">🎨 Farm Map</h3>
-        <PixelArtCanvas />
-      </div>
       
       <div className="pixel-footer">
         <button className="btn btn-secondary" onClick={handleExport}>
