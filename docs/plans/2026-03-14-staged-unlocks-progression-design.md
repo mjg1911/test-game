@@ -82,19 +82,16 @@ const ANIMAL_UNLOCK_COSTS: Record<string, number> = {
 
 ## 5. UI Changes
 
+### UpgradeShop Component (Central Unlock Tab)
+- Show all revealed-but-locked crops with unlock button and price
+- Show all revealed-but-locked animals with unlock button and price
+- Crop-specific upgrades (fertilizer/irrigation) shown with requirement "20 farms"
+
 ### CropField Component
-- Filter crops to only show `revealedCrops`
-- Display lock icon with unlock cost for hidden crops in a separate "Unlock" section
-- Only unlocked crops can be purchased
+- Only show `unlockedCrops` (already purchased)
 
 ### AnimalPen Component
-- Hide locked animals entirely (sequential reveal)
-- Show unlock button with price for revealed but locked animals
-
-### UpgradeShop Component
-- Show locked upgrades with visual lock indicator
-- Display requirement (e.g., "Requires 20 wheat farms")
-- Show hover tooltip with upgrade benefits
+- Only show `unlockedAnimals` (already purchased)
 
 ## 6. Actions
 

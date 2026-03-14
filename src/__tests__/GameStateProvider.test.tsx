@@ -103,9 +103,9 @@ describe('GameStateProvider', () => {
       
       const newState = reducer(initialState, { type: 'ADD_PASSIVE_INCOME', crop: 'wheat' });
       
-      // wheat has 1 farm, base income = 1.5 sell / 5 sec = 0.3 $/s
-      // With 0 upgrades: 0.3 * 1 * 1.3^0 = 0.3
-      expect(newState.resources.money).toBe(30.3);
+      // wheat has 1 farm, base income = 1 sell / 1 sec = 1 $/s
+      // Tick is 0.1s, so income per tick = 1/10 = 0.1
+      expect(newState.resources.money).toBe(30.1);
     });
 
     it('passive income tick adds money every second for each crop with farms', async () => {

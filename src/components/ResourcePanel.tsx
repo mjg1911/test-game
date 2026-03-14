@@ -1,27 +1,5 @@
 import React from 'react';
-import { useGameStateContext } from '../providers/GameStateProvider';
-
-const SELL_PRICES: Record<string, number> = {
-  wheat: 1.5,
-  corn: 3,
-  sunflower: 4.5,
-  peas: 6.5,
-  pumpkin: 8.5,
-  potato: 11,
-  tomato: 14.5
-};
-
-const BASE_COOLDOWNS: Record<string, number> = {
-  wheat: 5000,
-  corn: 8000,
-  sunflower: 10000,
-  peas: 12000,
-  pumpkin: 14000,
-  potato: 17000,
-  tomato: 21000
-};
-
-const INCOME_MULTIPLIER = 1.3;
+import { useGameStateContext, getIncomeMultiplier, SELL_PRICES, cropConfig } from '../providers/GameStateProvider';
 
 const ResourcePanel: React.FC = () => {
   const { state } = useGameStateContext();
@@ -31,24 +9,28 @@ const ResourcePanel: React.FC = () => {
   for (const cropKey of Object.keys(state.crops) as (keyof typeof state.crops)[]) {
     const crop = state.crops[cropKey];
     if (crop && crop.count > 0) {
-      const sellPrice = SELL_PRICES[cropKey] || 15;
-      const cooldown = BASE_COOLDOWNS[cropKey] || 5000;
+      const sellPrice = SELL_PRICES[cropKey] || 1;
+      const config = cropConfig[cropKey];
+      const cooldown = config?.cooldown || 1000;
       const baseIncomePerFarm = sellPrice / (cooldown / 1000);
       const upgradeLevel = (crop.fertilizerLevel || 0) + (crop.irrigationLevel || 0);
-      const multiplier = Math.pow(INCOME_MULTIPLIER, upgradeLevel);
+      const multiplier = Math.pow(getIncomeMultiplier(cropKey), upgradeLevel);
       passiveIncomePerSec += baseIncomePerFarm * crop.count * multiplier;
     }
   }
 
   const displayMoney = Math.floor(state.resources.money);
-  const displayPassiveIncome = passiveIncomePerSec.toFixed(2);
+  const displayPassiveIncome = passiveIncomePerSec.toFixed(0);
   
   const formatMoney = (n: number) => {
-    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+    if (n >= 1e15) return (n / 1e15).toFixed(2) + 'Q';
+    if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
+    if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+    if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
     return n.toString();
   };
-
+  
   return (
     <div className="pixel-panel" style={{ marginBottom: 16 }}>
       <h3 className="pixel-panel-title">💰 RESOURCES</h3>
@@ -61,7 +43,7 @@ const ResourcePanel: React.FC = () => {
         <div className="pixel-resource">
           <span className="pixel-resource-icon">⏳</span>
           <span className="pixel-resource-label">Passive income:</span>
-          <span className="pixel-resource-value" data-testid="passive-income">+${displayPassiveIncome}/s</span>
+          <span className="pixel-resource-value" data-testid="passive-income">+${formatMoney(Math.floor(passiveIncomePerSec))}/s</span>
         </div>
       </div>
     </div>
