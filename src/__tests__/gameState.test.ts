@@ -1,5 +1,5 @@
 import { getInitialGameState } from "../gameState"
-import { cropConfig, reducer } from "../providers/GameStateProvider"
+import { cropConfig, reducer, getIncomeMultiplier } from "../providers/GameStateProvider"
 
 test("initial state has upgradeLevel on crops", () => {
   const state = getInitialGameState();
@@ -12,38 +12,41 @@ test("initial state has $30 starting money", () => {
   expect(state.resources.money).toBe(30);
 });
 
-test("farm cost multiplier is 1.3", () => {
+test("farm cost multiplier is 1.15 for wheat", () => {
   const state = getInitialGameState();
   state.crops.wheat.count = 1;
   state.resources.money = 100;
   const newState = reducer(state, { type: 'BUY_PLOT', crop: 'wheat' });
-  const expectedCost = Math.floor(cropConfig.wheat.baseCost * Math.pow(1.3, 1));
+  const expectedCost = Math.floor(cropConfig.wheat.baseCost * Math.pow(getIncomeMultiplier('wheat'), 1));
   expect(state.resources.money - newState.resources.money).toBe(expectedCost);
 });
 
 test("initial state has correct structure", () => {
   const state = getInitialGameState();
-expect(state.crops.wheat.count).toBe(0);
-expect(state.crops.wheat.lastHarvest).toBeNull();
-expect(state.crops.wheat.cooldown).toBe(5000);
-expect(state.crops.corn.count).toBe(0);
-expect(state.crops.corn.lastHarvest).toBeNull();
-expect(state.crops.corn.cooldown).toBe(8000);
-expect(state.crops.sunflower.count).toBe(0);
-expect(state.crops.sunflower.lastHarvest).toBeNull();
-expect(state.crops.sunflower.cooldown).toBe(10000);
-expect(state.crops.peas.count).toBe(0);
-expect(state.crops.peas.lastHarvest).toBeNull();
-expect(state.crops.peas.cooldown).toBe(12000);
-expect(state.crops.pumpkin.count).toBe(0);
-expect(state.crops.pumpkin.lastHarvest).toBeNull();
-expect(state.crops.pumpkin.cooldown).toBe(14000);
-expect(state.crops.potato.count).toBe(0);
-expect(state.crops.potato.lastHarvest).toBeNull();
-expect(state.crops.potato.cooldown).toBe(17000);
-expect(state.crops.tomato.count).toBe(0);
-expect(state.crops.tomato.lastHarvest).toBeNull();
-expect(state.crops.tomato.cooldown).toBe(21000);
+  expect(state.crops.wheat.count).toBe(0);
+  expect(state.crops.wheat.lastHarvest).toBeNull();
+  expect(state.crops.wheat.cooldown).toBe(1000);
+  expect(state.crops.corn.count).toBe(0);
+  expect(state.crops.corn.lastHarvest).toBeNull();
+  expect(state.crops.corn.cooldown).toBe(1000);
+  expect(state.crops.potatoes.count).toBe(0);
+  expect(state.crops.potatoes.lastHarvest).toBeNull();
+  expect(state.crops.potatoes.cooldown).toBe(1000);
+  expect(state.crops.sugarcane.count).toBe(0);
+  expect(state.crops.sugarcane.lastHarvest).toBeNull();
+  expect(state.crops.sugarcane.cooldown).toBe(1000);
+  expect(state.crops.cotton.count).toBe(0);
+  expect(state.crops.cotton.lastHarvest).toBeNull();
+  expect(state.crops.cotton.cooldown).toBe(1000);
+  expect(state.crops.coffeeBeans.count).toBe(0);
+  expect(state.crops.coffeeBeans.lastHarvest).toBeNull();
+  expect(state.crops.coffeeBeans.cooldown).toBe(1000);
+  expect(state.crops.cocoaPods.count).toBe(0);
+  expect(state.crops.cocoaPods.lastHarvest).toBeNull();
+  expect(state.crops.cocoaPods.cooldown).toBe(1000);
+  expect(state.crops.goldenApples.count).toBe(0);
+  expect(state.crops.goldenApples.lastHarvest).toBeNull();
+  expect(state.crops.goldenApples.cooldown).toBe(1000);
   expect(state.animals.cow.count).toBe(0);
   expect(state.animals.cow.lastHarvest).toBeNull();
   expect(state.animals.cow.cooldown).toBe(100000);
@@ -59,12 +62,11 @@ expect(state.crops.tomato.cooldown).toBe(21000);
   expect(state.upgrades.autoHarvester.cost).toBe(500);
 });
 
-test("crop sell prices are reduced to 10%", () => {
+test("crop income matches research paper values", () => {
   const state = getInitialGameState();
-  const withFarm = reducer(
-    { ...state, crops: { ...state.crops, wheat: { ...state.crops.wheat, count: 1 } } },
-    { type: 'ADD_PASSIVE_INCOME', crop: 'wheat' }
-  );
-  const income = withFarm.resources.money - 30;
-  expect(income).toBeLessThan(1);
+  state.crops.wheat.count = 1;
+  state.resources.money = 30;
+  const withIncome = reducer(state, { type: 'ADD_PASSIVE_INCOME', crop: 'wheat' });
+  const income = withIncome.resources.money - 30;
+  expect(income).toBeCloseTo(0.1, 5);
 });

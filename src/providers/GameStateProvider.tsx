@@ -1,16 +1,63 @@
 import React, { createContext, useContext, useReducer } from 'react';
-import { getInitialGameState, CROP_UNLOCK_COSTS, ANIMAL_UNLOCK_COSTS, CROP_ORDER, ANIMAL_ORDER } from '../gameState';
+import { getInitialGameState, CROP_UNLOCK_COSTS, CROP_ORDER } from '../gameState';
 
 const UPGRADE_BASE_COST = 100;
 const UPGRADE_COST_EXPONENT = 2;
-const INCOME_MULTIPLIER = 1.3;
+
+const CROP_INCOME_MULTIPLIERS: Record<string, number> = {
+  wheat: 1.15,
+  corn: 1.15,
+  potatoes: 1.15,
+  sugarcane: 1.15,
+  cotton: 1.15,
+  coffeeBeans: 1.15,
+  cocoaPods: 1.15,
+  goldenApples: 1.15,
+  starfruit: 1.15,
+  moonMelons: 1.15,
+  etherealLotus: 1.15,
+  chronoVines: 1.15,
+  voidBerries: 1.15
+};
+
+function getIncomeMultiplier(cropKey: string): number {
+  return CROP_INCOME_MULTIPLIERS[cropKey] || 1.15;
+}
+
+export function getCropUnlockCost(crop: string): number {
+  return CROP_UNLOCK_COSTS[crop] || 0;
+}
+
+export function isCropUnlocked(crop: string, state: GameState): boolean {
+  return state.unlockedCrops.includes(crop);
+}
+
+export function isCropRevealed(crop: string, state: GameState): boolean {
+  return state.revealedCrops.includes(crop);
+}
+
+export function getRevealedUnlockedCrops(state: GameState): string[] {
+  return state.revealedCrops.filter(crop => state.unlockedCrops.includes(crop));
+}
+
+export function getRevealedLockedCrops(state: GameState): string[] {
+  return state.revealedCrops.filter(crop => !state.unlockedCrops.includes(crop));
+}
+
+export { getIncomeMultiplier, SELL_PRICES, BASE_COOLDOWNS };
 
 const SELL_PRICES: Record<string, number> = {
-  wheat: 1.5, corn: 3, sunflower: 4.5, peas: 6.5, pumpkin: 8.5, potato: 11, tomato: 14.5
+  wheat: 1, corn: 8, potatoes: 47, sugarcane: 260, cotton: 2000,
+  coffeeBeans: 15000, cocoaPods: 120000, goldenApples: 600000,
+  starfruit: 4000000, moonMelons: 25000000, etherealLotus: 160000000,
+  chronoVines: 1000000000, voidBerries: 7000000000
 };
 
 const BASE_COOLDOWNS: Record<string, number> = {
-  wheat: 5000, corn: 8000, sunflower: 10000, peas: 12000, pumpkin: 14000, potato: 17000, tomato: 21000
+  wheat: 1000, corn: 1000, potatoes: 1000, sugarcane: 1000, cotton: 1000,
+  coffeeBeans: 1000, cocoaPods: 1000, goldenApples: 1000,
+  starfruit: 1000, moonMelons: 1000, etherealLotus: 1000,
+  chronoVines: 1000, voidBerries: 1000
 };
 
 const initialState = getInitialGameState();
@@ -20,13 +67,19 @@ interface CropConfig {
   cooldown: number;
 }
 export const cropConfig: { [key: string]: CropConfig } = {
-  wheat: { baseCost: 10, cooldown: 5000 },
-  corn: { baseCost: 20, cooldown: 8000 },
-  sunflower: { baseCost: 30, cooldown: 10000 },
-  peas: { baseCost: 40, cooldown: 12000 },
-  pumpkin: { baseCost: 50, cooldown: 14000 },
-  potato: { baseCost: 70, cooldown: 17000 },
-  tomato: { baseCost: 100, cooldown: 21000 }
+  wheat: { baseCost: 10, cooldown: 1000 },
+  corn: { baseCost: 100, cooldown: 1000 },
+  potatoes: { baseCost: 1100, cooldown: 1000 },
+  sugarcane: { baseCost: 12000, cooldown: 1000 },
+  cotton: { baseCost: 130000, cooldown: 1000 },
+  coffeeBeans: { baseCost: 1400000, cooldown: 1000 },
+  cocoaPods: { baseCost: 20000000, cooldown: 1000 },
+  goldenApples: { baseCost: 330000000, cooldown: 1000 },
+  starfruit: { baseCost: 5100000000, cooldown: 1000 },
+  moonMelons: { baseCost: 75000000000, cooldown: 1000 },
+  etherealLotus: { baseCost: 1000000000000, cooldown: 1000 },
+  chronoVines: { baseCost: 14000000000000, cooldown: 1000 },
+  voidBerries: { baseCost: 170000000000000, cooldown: 1000 }
 };
 
 export function getIncomeMultiplier(farmersOwned: number): number {
@@ -76,7 +129,7 @@ export function getRevealedLockedAnimals(state: GameState): string[] {
 export function getFarmerCost(cropKey: string, farmersOwned: number): number {
   const config = cropConfig[cropKey as keyof typeof cropConfig];
   if (!config) return Infinity;
-  return Math.floor(UPGRADE_BASE_COST * config.baseCost * Math.pow(INCOME_MULTIPLIER, farmersOwned));
+  return Math.floor(UPGRADE_BASE_COST * config.baseCost * Math.pow(getIncomeMultiplier(cropKey), farmersOwned));
 }
 
 export const GameStateContext = createContext({
@@ -89,11 +142,17 @@ import type { CropData, AnimalData } from '../gameState';
 interface CropsState {
   wheat: CropData;
   corn: CropData;
-  sunflower: CropData;
-  peas: CropData;
-  pumpkin: CropData;
-  potato: CropData;
-  tomato: CropData;
+  potatoes: CropData;
+  sugarcane: CropData;
+  cotton: CropData;
+  coffeeBeans: CropData;
+  cocoaPods: CropData;
+  goldenApples: CropData;
+  starfruit: CropData;
+  moonMelons: CropData;
+  etherealLotus: CropData;
+  chronoVines: CropData;
+  voidBerries: CropData;
 }
 
 interface AnimalsState {
@@ -110,11 +169,17 @@ interface ResourcesState {
   money: number;
   wheat: number;
   corn: number;
-  sunflower: number;
-  peas: number;
-  pumpkin: number;
-  potato: number;
-  tomato: number;
+  potatoes: number;
+  sugarcane: number;
+  cotton: number;
+  coffeeBeans: number;
+  cocoaPods: number;
+  goldenApples: number;
+  starfruit: number;
+  moonMelons: number;
+  etherealLotus: number;
+  chronoVines: number;
+  voidBerries: number;
   eggs: number;
   milk: number;
   wool: number;
@@ -131,6 +196,8 @@ interface UpgradesState {
 
 interface GameState {
   crops: CropsState;
+  unlockedCrops: string[];
+  revealedCrops: string[];
   animals: AnimalsState;
   resources: ResourcesState;
   upgrades: UpgradesState;
@@ -153,8 +220,7 @@ type GameAction =
   | { type: 'RESET' }
   | { type: 'ADD_PASSIVE_INCOME'; crop: string }
   | { type: 'UPGRADE_FARM'; crop: string; upgradeType: 'fertilizer' | 'irrigation' }
-  | { type: 'UNLOCK_CROP'; crop: string }
-  | { type: 'UNLOCK_ANIMAL'; animal: string };
+  | { type: 'UNLOCK_CROP'; crop: string };
 
 export function reducer(state: GameState, action: GameAction) {
   switch (action.type) {
@@ -166,7 +232,7 @@ export function reducer(state: GameState, action: GameAction) {
       if (!config) return state;
       
       const count = crop.count;
-      const cost = Math.floor(config.baseCost * Math.pow(INCOME_MULTIPLIER, count));
+      const cost = Math.floor(config.baseCost * Math.pow(getIncomeMultiplier(action.crop), count));
       
       if (state.resources.money < cost) return state;
 
@@ -385,8 +451,8 @@ const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = 
       const sellPrice = SELL_PRICES[action.crop] || 15;
       const cooldown = BASE_COOLDOWNS[action.crop] || 5000;
       const baseIncomePerFarm = sellPrice / (cooldown / 1000);
-      const multiplier = Math.pow(INCOME_MULTIPLIER, (crop.fertilizerLevel || 0) + (crop.irrigationLevel || 0));
-      const income = baseIncomePerFarm * crop.count * multiplier;
+      const multiplier = Math.pow(getIncomeMultiplier(action.crop), (crop.fertilizerLevel || 0) + (crop.irrigationLevel || 0));
+      const income = (baseIncomePerFarm * crop.count * multiplier) / 10;
       
       return {
         ...state,
@@ -439,23 +505,6 @@ const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = 
         }
       };
     }
-    case 'UNLOCK_ANIMAL': {
-      const animalUnlockCost = ANIMAL_UNLOCK_COSTS[action.animal] || 0;
-      if (state.resources.money < animalUnlockCost) return state;
-      
-      const nextAnimalIndex = ANIMAL_ORDER.indexOf(action.animal) + 1;
-      const nextAnimal = ANIMAL_ORDER[nextAnimalIndex];
-      
-      return {
-        ...state,
-        unlockedAnimals: [...state.unlockedAnimals, action.animal],
-        revealedAnimals: nextAnimal ? [...state.revealedAnimals, nextAnimal] : state.revealedAnimals,
-        resources: {
-          ...state.resources,
-          money: state.resources.money - animalUnlockCost
-        }
-      };
-    }
     default:
       return state;
   }
@@ -483,6 +532,8 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
             ...initial,
             ...parsed,
             crops: { ...initial.crops, ...parsed.crops },
+            unlockedCrops: [...(initial.unlockedCrops || []), ...(parsed.unlockedCrops || [])],
+            revealedCrops: [...(initial.revealedCrops || []), ...(parsed.revealedCrops || [])],
             animals: { ...initial.animals, ...parsed.animals },
             resources: { ...initial.resources, ...parsed.resources },
             upgrades: { ...initial.upgrades, ...parsed.upgrades },
@@ -508,7 +559,7 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state]);
 
-  // Passive income tick: add income every second for each crop with farms
+  // Passive income tick: add income every 0.1 seconds for each crop with farms
   const stateRef = React.useRef(state);
   stateRef.current = state;
   React.useEffect(() => {
@@ -521,7 +572,7 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
           dispatch({ type: 'ADD_PASSIVE_INCOME', crop: cropKey });
         }
       }
-    }, 1000);
+    }, 100);
     return () => clearInterval(interval);
   }, []);
 

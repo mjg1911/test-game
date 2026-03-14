@@ -272,15 +272,14 @@ git commit -m "feat: add unlock helper functions"
 
 Update import line 2:
 ```typescript
-import { useGameStateContext, getIncomeMultiplier, getRevealedUnlockedCrops, getRevealedLockedCrops, getCropUnlockCost } from '../providers/GameStateProvider';
+import { useGameStateContext, getIncomeMultiplier, getRevealedUnlockedCrops } from '../providers/GameStateProvider';
 ```
 
 **Step 2: Update render logic**
 
-Replace the mapping at line 53 to filter revealed crops:
+Replace the mapping at line 53 to filter to only unlocked crops:
 ```typescript
 const unlockedCrops = getRevealedUnlockedCrops(state);
-const lockedCrops = getRevealedLockedCrops(state);
 
 return (
   <div>
@@ -289,50 +288,6 @@ return (
         // existing crop rendering logic
       })}
     </div>
-    
-    {lockedCrops.length > 0 && (
-      <div style={{ marginTop: 16 }}>
-        <h4 style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>🔒 Locked Crops</h4>
-        <div className="pixel-grid">
-          {lockedCrops.map(crop => {
-            const cost = getCropUnlockCost(crop);
-            const emoji = crop === 'sunflower' ? '🌻' : crop === 'peas' ? '🫛' : crop === 'pumpkin' ? '🎃' : crop === 'potato' ? '🥔' : '🍅';
-            
-            return (
-              <div key={crop} className="pixel-stat" style={{ 
-                padding: 12, 
-                background: '#f0f0f0', 
-                borderRadius: 8, 
-                border: '2px dashed #999',
-                opacity: 0.7
-              }}>
-                <div className="pixel-stat-label" style={{ fontSize: 14, marginBottom: 4 }}>
-                  🔒 {emoji} {crop.charAt(0).toUpperCase() + crop.slice(1)}
-                </div>
-                <div style={{ marginTop: 8 }}>
-                  <div style={{ fontSize: 10, color: '#888' }}>UNLOCK COST</div>
-                  <div style={{ fontSize: 18, fontWeight: 'bold', color: '#666' }}>${formatMoney(cost)}</div>
-                </div>
-                <button 
-                  className="pixel-button" 
-                  style={{ 
-                    fontSize: 11, 
-                    padding: '8px 16px',
-                    marginTop: 8,
-                    background: state.resources.money < cost ? '#aaa' : undefined,
-                    cursor: state.resources.money < cost ? 'not-allowed' : 'pointer'
-                  }}
-                  onClick={() => dispatch({ type: 'UNLOCK_CROP', crop })}
-                  disabled={state.resources.money < cost}
-                >
-                  Unlock
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    )}
   </div>
 );
 ```
@@ -345,7 +300,7 @@ npm test
 **Step 4: Commit**
 ```bash
 git add src/components/CropField.tsx
-git commit -m "feat: add crop unlock UI to CropField"
+git commit -m "feat: filter CropField to show only unlocked crops"
 ```
 
 ---
@@ -359,91 +314,89 @@ git commit -m "feat: add crop unlock UI to CropField"
 
 First check if file exists and its structure.
 
-**Step 2: Add unlock functionality**
+**Step 2: Filter to only unlocked animals**
 
-Add imports and state logic similar to CropField:
-```typescript
-import { useGameStateContext, getRevealedUnlockedAnimals, getRevealedLockedAnimals, getAnimalUnlockCost } from '../providers/GameStateProvider';
-
-// In component:
-const unlockedAnimals = getRevealedUnlockedAnimals(state);
-const lockedAnimals = getRevealedLockedAnimals(state);
-
-// Add unlock section at bottom
-{lockedAnimals.length > 0 && (
-  <div style={{ marginTop: 16 }}>
-    <h4>🔒 Locked Animals</h4>
-    {lockedAnimals.map(animal => {
-      const cost = getAnimalUnlockCost(animal);
-      return (
-        <div key={animal}>
-          <span>🔒 {animal}</span>
-          <button onClick={() => dispatch({ type: 'UNLOCK_ANIMAL', animal })} disabled={state.resources.money < cost}>
-            Unlock (${cost})
-          </button>
-        </div>
-      );
-    })}
-  </div>
-)}
-```
+Similar to CropField, filter to show only unlocked animals.
 
 **Step 3: Commit**
 ```bash
 git add src/components/AnimalPen.tsx
-git commit -m "feat: add animal unlock UI to AnimalPen"
+git commit -m "feat: filter AnimalPen to show only unlocked animals"
 ```
 
 ---
 
-### Task 7: Update UpgradeShop for Crop-Specific Upgrades
+### Task 7: Add Unlock UI to UpgradeShop
 
 **Files:**
 - Modify: `src/components/UpgradeShop.tsx`
 
-**Step 1: Add crop-specific upgrade logic**
+**Step 1: Add imports**
 
-The upgrade shop needs to show per-crop fertilizer/irrigation upgrades. This is a larger change - we'll add a "Crop Upgrades" section.
-
-**Step 2: Add new state for per-crop upgrade tracking**
-
-Actually, looking at the current gameState, the fertilizer/irrigation levels are stored per-crop in the CropData. So we need to render per-crop upgrades in CropField (which already shows them at lines 125-141).
-
-The key change is: show upgrade button ONLY when crop count >= 20.
-
-**Step 3: Modify CropField upgrade visibility**
-
-Update lines 125-141 in CropField to check crop count:
 ```typescript
-{hasFarms && (
-  <div style={{ marginTop: 12, paddingTop: 8, borderTop: '1px dashed rgba(0,0,0,0.2)' }}>
-    {data.count >= 20 ? (
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 9, color: '#888' }}>
-          ↑ Fertilizer {fertilizerLevel} | Irrigation {irrigationLevel}
-        </div>
-        <button 
-          className="pixel-button" 
-          style={{ fontSize: 10, padding: '6px 12px' }}
-          onClick={() => handleUpgrade(crop, nextUpgrade.type)}
-          disabled={state.resources.money < upgradeCost}
-        >
-          {nextUpgrade.name} (${formatMoney(upgradeCost)})
-        </button>
+import { useGameStateContext, getRevealedLockedCrops, getRevealedLockedAnimals, getCropUnlockCost, getAnimalUnlockCost, CROP_UNLOCK_COSTS, ANIMAL_UNLOCK_COSTS, CROP_ORDER } from '../providers/GameStateProvider';
+```
+
+**Step 2: Add unlock sections**
+
+Add sections for "Unlock Crops" and "Unlock Animals":
+```typescript
+// Add after existing upgrade rendering
+const lockedCrops = getRevealedLockedCrops(state);
+const lockedAnimals = getRevealedLockedAnimals(state);
+
+return (
+  <div>
+    {/* Existing upgrades */}
+    
+    {lockedCrops.length > 0 && (
+      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #444' }}>
+        <h4>🔓 Unlock Crops</h4>
+        {lockedCrops.map(crop => {
+          const cost = getCropUnlockCost(crop);
+          const emoji = crop === 'sunflower' ? '🌻' : crop === 'peas' ? '🫛' : crop === 'pumpkin' ? '🎃' : crop === 'potato' ? '🥔' : '🍅';
+          return (
+            <div key={crop} style={{ marginBottom: 8 }}>
+              <span>{emoji} {crop}</span>
+              <button 
+                onClick={() => dispatch({ type: 'UNLOCK_CROP', crop })}
+                disabled={state.resources.money < cost}
+              >
+                Unlock (${cost})
+              </button>
+            </div>
+          );
+        })}
       </div>
-    ) : (
-      <div style={{ fontSize: 9, color: '#888', fontStyle: 'italic' }}>
-        🔒 Upgrades unlock at 20 farms
+    )}
+
+    {lockedAnimals.length > 0 && (
+      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #444' }}>
+        <h4>🔓 Unlock Animals</h4>
+        {lockedAnimals.map(animal => {
+          const cost = getAnimalUnlockCost(animal);
+          return (
+            <div key={animal} style={{ marginBottom: 8 }}>
+              <span>{animal}</span>
+              <button 
+                onClick={() => dispatch({ type: 'UNLOCK_ANIMAL', animal })}
+                disabled={state.resources.money < cost}
+              >
+                Unlock (${cost})
+              </button>
+            </div>
+          );
+        })}
       </div>
     )}
   </div>
-)}
+);
 ```
 
-**Step 4: Commit**
+**Step 3: Commit**
 ```bash
-git add src/components/CropField.tsx
-git commit -m "feat: add upgrade visibility threshold (20 farms)"
+git add src/components/UpgradeShop.tsx
+git commit -m "feat: add crop and animal unlock UI to UpgradeShop"
 ```
 
 ---
@@ -478,5 +431,6 @@ git commit -m "feat: complete staged unlocks progression system"
 Tasks: 8
 - Task 1-2: Configuration and state setup
 - Task 3-4: Reducer actions and helpers
-- Task 5-7: UI components for crops, animals, upgrades
+- Task 5-6: Filter CropField/AnimalPen to show only unlocked items
+- Task 7: Add unlock UI to UpgradeShop (central tab)
 - Task 8: Testing and final verification
