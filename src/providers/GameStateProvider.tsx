@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer } from 'react';
-import { getInitialGameState } from '../gameState';
+import { getInitialGameState, CROP_UNLOCK_COSTS, ANIMAL_UNLOCK_COSTS, CROP_ORDER, ANIMAL_ORDER } from '../gameState';
 
 const UPGRADE_BASE_COST = 100;
 const UPGRADE_COST_EXPONENT = 2;
@@ -90,6 +90,10 @@ interface GameState {
   animals: AnimalsState;
   resources: ResourcesState;
   upgrades: UpgradesState;
+  unlockedCrops: string[];
+  revealedCrops: string[];
+  unlockedAnimals: string[];
+  revealedAnimals: string[];
 }
 
 
@@ -104,7 +108,9 @@ type GameAction =
   | { type: 'UPGRADE'; upgrade: string; cost: number }
   | { type: 'RESET' }
   | { type: 'ADD_PASSIVE_INCOME'; crop: string }
-  | { type: 'UPGRADE_FARM'; crop: string; upgradeType: 'fertilizer' | 'irrigation' };
+  | { type: 'UPGRADE_FARM'; crop: string; upgradeType: 'fertilizer' | 'irrigation' }
+  | { type: 'UNLOCK_CROP'; crop: string }
+  | { type: 'UNLOCK_ANIMAL'; animal: string };
 
 export function reducer(state: GameState, action: GameAction) {
   switch (action.type) {
@@ -370,6 +376,40 @@ const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = 
           ...state.resources,
           money: state.resources.money - cost,
         },
+      };
+    }
+    case 'UNLOCK_CROP': {
+      const cropUnlockCost = CROP_UNLOCK_COSTS[action.crop] || 0;
+      if (state.resources.money < cropUnlockCost) return state;
+      
+      const nextCropIndex = CROP_ORDER.indexOf(action.crop) + 1;
+      const nextCrop = CROP_ORDER[nextCropIndex];
+      
+      return {
+        ...state,
+        unlockedCrops: [...state.unlockedCrops, action.crop],
+        revealedCrops: nextCrop ? [...state.revealedCrops, nextCrop] : state.revealedCrops,
+        resources: {
+          ...state.resources,
+          money: state.resources.money - cropUnlockCost
+        }
+      };
+    }
+    case 'UNLOCK_ANIMAL': {
+      const animalUnlockCost = ANIMAL_UNLOCK_COSTS[action.animal] || 0;
+      if (state.resources.money < animalUnlockCost) return state;
+      
+      const nextAnimalIndex = ANIMAL_ORDER.indexOf(action.animal) + 1;
+      const nextAnimal = ANIMAL_ORDER[nextAnimalIndex];
+      
+      return {
+        ...state,
+        unlockedAnimals: [...state.unlockedAnimals, action.animal],
+        revealedAnimals: nextAnimal ? [...state.revealedAnimals, nextAnimal] : state.revealedAnimals,
+        resources: {
+          ...state.resources,
+          money: state.resources.money - animalUnlockCost
+        }
       };
     }
     default:
