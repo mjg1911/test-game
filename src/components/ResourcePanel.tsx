@@ -20,8 +20,7 @@ const ResourcePanel: React.FC = () => {
   }
 
   const displayMoney = Math.floor(state.resources.money);
-  const displayPassiveIncome = passiveIncomePerSec.toFixed(0);
-  
+
   const formatMoney = (n: number) => {
     if (n >= 1e15) return (n / 1e15).toFixed(2) + 'Q';
     if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
@@ -30,20 +29,21 @@ const ResourcePanel: React.FC = () => {
     if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
     return n.toString();
   };
-  
+
+  // New semantic resource header row container
   return (
     <div className="glass-panel" style={{ marginBottom: 'var(--space-md)' }}>
       <h3 className="heading-section">💰 Resources</h3>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-md)' }}>
-        <div className="resource">
+      <div className="resource-header-container" style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+        <div className="resource" style={{ flex: 1 }}>
           <span className="resource-icon">💵</span>
           <span className="stat-label">Money:</span>
-          <span className="resource-value" data-testid="money">${formatMoney(displayMoney)}</span>
+          <span className="resource-value" data-testid="money" aria-label="Money value">{`$${formatMoney(displayMoney)}`}</span>
         </div>
-        <div className="resource">
+        <div className="resource right" style={{ flex: 1, justifyContent: 'flex-end', display: 'flex' }}>
           <span className="resource-icon">⏳</span>
           <span className="stat-label">Passive income:</span>
-          <span className="resource-value" data-testid="passive-income">+${formatMoney(Math.floor(passiveIncomePerSec))}/s</span>
+          <span className="resource-value" data-testid="passive-income" aria-label="Passive income">+${formatMoney(Math.floor(passiveIncomePerSec))}/s</span>
         </div>
       </div>
     </div>

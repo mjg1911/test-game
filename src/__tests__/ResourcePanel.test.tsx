@@ -112,4 +112,35 @@ describe('ResourcePanel', () => {
     // With fertilizer level 2 and irrigation 0, multiplier = 1.15^2
     expect(passiveIncome.textContent).toContain('/s');
   });
+
+  it('renders resources in correct row alignment, money left, passive right', () => {
+    const mockContext = {
+      state: {
+        resources: { money: 250, wheat: 0, corn: 0, sunflower: 0, peas: 0, pumpkin: 0, potato: 0, tomato: 0, eggs: 0, milk: 0, wool: 0, bacon: 0, cheese: 0, fur: 0, feathers: 0 },
+        crops: { wheat: { count: 10, lastHarvest: null, cooldown: 5000, farmers: 0, fertilizerLevel: 1, irrigationLevel: 0 }, corn: { count: 5, lastHarvest: null, cooldown: 9000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 }, sunflower: { count: 0 }, peas: { count: 0 }, pumpkin: { count: 0 }, potato: { count: 0 }, tomato: { count: 0 } },
+        upgrades: {},
+        animals: emptyAnimals,
+      },
+      dispatch: () => {}
+    };
+    const { container } = render(
+      <GameStateContext.Provider value={mockContext}>
+        <ResourcePanel />
+      </GameStateContext.Provider>
+    );
+    // Check for header container and row flex
+    const row = container.querySelector('.resource-header-container');
+    expect(row).toBeInTheDocument();
+    const money = screen.getByTestId('money');
+    const passive = screen.getByTestId('passive-income');
+    expect(money).toBeInTheDocument();
+    expect(passive).toBeInTheDocument();
+    // Check order: money comes before passive income
+    expect(row?.children.length).toBeGreaterThan(1);
+    expect(row?.lastElementChild).toContainElement(passive);
+    expect(row?.firstElementChild).toContainElement(money);
+    // Check for right alignment class on passive income's parent
+    const passiveParent = passive.closest('.resource');
+    expect(passiveParent?.classList.contains('right')).toBe(true);
+  });
 });
