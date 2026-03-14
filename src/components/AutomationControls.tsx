@@ -33,17 +33,17 @@ const AutomationControls: React.FC = () => {
   }, [enabled, state, dispatch]);
 
   return (
-    <section style={{ padding: '1em', border: '1px solid #667', background: '#222', color: '#7bdfff', fontFamily: 'monospace', borderRadius: 6, marginBottom: '1em' }}>
-      <h3>Automation Controls</h3>
+    <section className="glass-panel">
+      <h3 className="heading-section">Automation Controls</h3>
       <button
         type="button"
+        className={enabled ? 'btn btn-primary' : 'btn btn-secondary'}
         onClick={() => setEnabled((prev) => !prev)}
         aria-label={enabled ? 'Disable Automation' : 'Enable Automation'}
-        style={{ background: enabled ? '#4a4' : '#666' }}
       >
         {enabled ? 'Disable Automation' : 'Enable Automation'}
       </button>
-      {enabled && <span style={{ marginLeft: '1em' }}>Running...</span>}
+      {enabled && <span style={{ marginLeft: 'var(--space-md)' }}>Running...</span>}
     </section>
   );
 };

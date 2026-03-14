@@ -82,56 +82,48 @@ export default function UpgradeShop() {
   const nextLockedCrop = getNextLockedCrop();
 
   return (
-    <div style={{ padding: '1em', border: '1px solid #9932cc', background: '#2d1a3d', color: '#fff', fontFamily: 'monospace', borderRadius: 6 }}>
-      <h3>Upgrade Shop</h3>
+    <div className="glass-panel">
+      <h3 className="heading-section">Upgrade Shop</h3>
       
-      <div style={{ marginBottom: '1.5em' }}>
-        <h4 style={{ color: '#bb8fce', marginBottom: '0.5em' }}>Crop Unlocks</h4>
+      <div style={{ marginBottom: 'var(--space-lg)' }}>
+        <h4 className="heading-label">Crop Unlocks</h4>
         {nextLockedCrop ? (
-          <div style={{ marginBottom: '0.75em', padding: '0.5em', background: '#3d2a4d', borderRadius: 4 }}>
+          <div style={{ marginBottom: 'var(--space-sm)', padding: 'var(--space-sm)', background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)' }}>
             <div><strong>{nextLockedCrop.name}</strong></div>
             <button 
+              className="btn btn-primary"
               onClick={() => handleUnlockCrop(nextLockedCrop)}
               disabled={state.resources.money < getCropUnlockCost(nextLockedCrop.crop)}
               style={{ 
-                marginTop: 4,
-                background: state.resources.money >= getCropUnlockCost(nextLockedCrop.crop) ? '#9b59b6' : '#555',
-                color: '#fff',
-                border: 'none',
-                padding: '4px 8px',
-                borderRadius: 4,
-                cursor: state.resources.money >= getCropUnlockCost(nextLockedCrop.crop) ? 'pointer' : 'not-allowed'
+                marginTop: 'var(--space-xs)',
+                opacity: state.resources.money >= getCropUnlockCost(nextLockedCrop.crop) ? 1 : 0.5,
               }}
             >
               Unlock (${formatMoney(getCropUnlockCost(nextLockedCrop.crop))})
             </button>
           </div>
         ) : (
-          <div style={{ color: '#4a4', padding: '0.5em' }}>All crops unlocked!</div>
+          <div style={{ color: 'var(--accent-success)', padding: 'var(--space-sm)' }}>All crops unlocked!</div>
         )}
       </div>
       
       <div>
-        <h4 style={{ color: '#bb8fce', marginBottom: '0.5em' }}>Farm Upgrades</h4>
+        <h4 className="heading-label">Farm Upgrades</h4>
         {Object.entries(UPGRADE_CONFIG).map(([key, config]) => {
           const currentLevel = state.upgrades[key as keyof typeof state.upgrades]?.level || 0;
           const cost = config.baseCost * Math.pow(2, currentLevel);
           const isMaxed = currentLevel >= config.maxLevel;
           return (
-            <div key={key} style={{ marginBottom: '1em' }}>
+            <div key={key} style={{ marginBottom: 'var(--space-md)' }}>
               <div><strong>{key}</strong> (Level {currentLevel}/{config.maxLevel})</div>
-              <div style={{ fontSize: '0.8em', color: '#aaa' }}>{config.description}</div>
+              <div style={{ fontSize: 'var(--space-sm)', color: 'var(--text-muted)' }}>{config.description}</div>
               <button 
+                className="btn btn-primary"
                 onClick={() => handleBuyUpgrade(key)}
                 disabled={isMaxed || state.resources.money < cost}
                 style={{ 
-                  marginTop: 4,
-                  background: isMaxed ? '#4a4' : state.resources.money >= cost ? '#9b59b6' : '#555',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '4px 8px',
-                  borderRadius: 4,
-                  cursor: isMaxed || state.resources.money < cost ? 'not-allowed' : 'pointer'
+                  marginTop: 'var(--space-xs)',
+                  opacity: isMaxed ? 0.5 : state.resources.money >= cost ? 1 : 0.5,
                 }}
               >
                 {isMaxed ? 'MAXED' : `Buy ($${formatMoney(cost)})`}
