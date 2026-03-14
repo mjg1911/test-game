@@ -71,6 +71,10 @@ export function getInitialGameState() {
     upgrades: {
       fertilizer: { level: 0, cost: 100 },
       autoHarvester: { level: 0, cost: 500 }
-    }
+    },
+    unlockedCrops: ['wheat', 'corn'],
+    revealedCrops: ['wheat', 'corn', 'sunflower'],
+    unlockedAnimals: [],
+    revealedAnimals: ['chicken']
   }
 }

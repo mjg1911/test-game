@@ -82,6 +82,50 @@ export const cropConfig: { [key: string]: CropConfig } = {
   voidBerries: { baseCost: 170000000000000, cooldown: 1000 }
 };
 
+export function getIncomeMultiplier(farmersOwned: number): number {
+  return Math.pow(INCOME_MULTIPLIER, farmersOwned);
+}
+
+export function isCropUnlocked(crop: string, state: GameState): boolean {
+  return state.unlockedCrops.includes(crop);
+}
+
+export function isCropRevealed(crop: string, state: GameState): boolean {
+  return state.revealedCrops.includes(crop);
+}
+
+export function isAnimalUnlocked(animal: string, state: GameState): boolean {
+  return state.unlockedAnimals.includes(animal);
+}
+
+export function isAnimalRevealed(animal: string, state: GameState): boolean {
+  return state.revealedAnimals.includes(animal);
+}
+
+export function getCropUnlockCost(crop: string): number {
+  return CROP_UNLOCK_COSTS[crop] || 0;
+}
+
+export function getAnimalUnlockCost(animal: string): number {
+  return ANIMAL_UNLOCK_COSTS[animal] || 0;
+}
+
+export function getRevealedUnlockedCrops(state: GameState): string[] {
+  return state.revealedCrops.filter(crop => state.unlockedCrops.includes(crop));
+}
+
+export function getRevealedLockedCrops(state: GameState): string[] {
+  return state.revealedCrops.filter(crop => !state.unlockedCrops.includes(crop));
+}
+
+export function getRevealedUnlockedAnimals(state: GameState): string[] {
+  return state.revealedAnimals.filter(animal => state.unlockedAnimals.includes(animal));
+}
+
+export function getRevealedLockedAnimals(state: GameState): string[] {
+  return state.revealedAnimals.filter(animal => !state.unlockedAnimals.includes(animal));
+}
+
 export function getFarmerCost(cropKey: string, farmersOwned: number): number {
   const config = cropConfig[cropKey as keyof typeof cropConfig];
   if (!config) return Infinity;
@@ -157,6 +201,10 @@ interface GameState {
   animals: AnimalsState;
   resources: ResourcesState;
   upgrades: UpgradesState;
+  unlockedCrops: string[];
+  revealedCrops: string[];
+  unlockedAnimals: string[];
+  revealedAnimals: string[];
 }
 
 
@@ -489,6 +537,10 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
             animals: { ...initial.animals, ...parsed.animals },
             resources: { ...initial.resources, ...parsed.resources },
             upgrades: { ...initial.upgrades, ...parsed.upgrades },
+            unlockedCrops: parsed.unlockedCrops || initial.unlockedCrops,
+            revealedCrops: parsed.revealedCrops || initial.revealedCrops,
+            unlockedAnimals: parsed.unlockedAnimals || initial.unlockedAnimals,
+            revealedAnimals: parsed.revealedAnimals || initial.revealedAnimals,
           };
         }
       } catch (e) {

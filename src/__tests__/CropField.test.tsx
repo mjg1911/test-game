@@ -30,6 +30,8 @@ describe('CropField (passive farm income)', () => {
         unlockedCrops: ['wheat', 'corn'],
         revealedCrops: ['wheat', 'corn', 'potatoes'],
         resources: { money: 100000, wheat: 0, corn: 0 },
+        revealedCrops: ['wheat', 'corn'],
+        unlockedCrops: ['wheat', 'corn'],
       },
       dispatch: vi.fn(),
     };
@@ -47,6 +49,8 @@ describe('CropField (passive farm income)', () => {
         unlockedCrops: ['wheat', 'corn'],
         revealedCrops: ['wheat', 'corn', 'potatoes'],
         resources: { money: 100000, wheat: 0, corn: 0 },
+        revealedCrops: ['wheat', 'corn'],
+        unlockedCrops: ['wheat', 'corn'],
       },
       dispatch: vi.fn(),
     };
@@ -64,6 +68,8 @@ describe('CropField (passive farm income)', () => {
         unlockedCrops: ['wheat', 'corn'],
         revealedCrops: ['wheat', 'corn', 'potatoes'],
         resources: { money: 100000, wheat: 0, corn: 0 },
+        revealedCrops: ['wheat', 'corn'],
+        unlockedCrops: ['wheat', 'corn'],
       },
       dispatch: vi.fn(),
     };
@@ -83,6 +89,8 @@ describe('CropField (passive farm income)', () => {
         unlockedCrops: ['wheat', 'corn'],
         revealedCrops: ['wheat', 'corn', 'potatoes'],
         resources: { money: 100000, wheat: 0, corn: 0 },
+        revealedCrops: ['wheat', 'corn'],
+        unlockedCrops: ['wheat', 'corn'],
       },
       dispatch: vi.fn(),
     };

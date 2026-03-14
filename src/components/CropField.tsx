@@ -157,7 +157,7 @@ const CropField: React.FC = () => {
                     background: state.resources.money < cropCost ? '#aaa' : undefined,
                     cursor: state.resources.money < cropCost ? 'not-allowed' : 'pointer'
                   }}
-                  onClick={() => handleBuyFarm(crop)}
+                  onClick={() => handleBuyFarm(cropKey)}
                   disabled={state.resources.money < cropCost}
                 >
                   Buy
@@ -173,7 +173,7 @@ const CropField: React.FC = () => {
                     <button 
                       className="pixel-button" 
                       style={{ fontSize: 10, padding: '6px 12px' }}
-                      onClick={() => handleUpgrade(crop, nextUpgrade.type)}
+                      onClick={() => handleUpgrade(cropKey, nextUpgrade.type)}
                       disabled={state.resources.money < upgradeCost}
                     >
                       {nextUpgrade.name} (${formatMoney(upgradeCost)})
