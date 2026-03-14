@@ -486,6 +486,10 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
             animals: { ...initial.animals, ...parsed.animals },
             resources: { ...initial.resources, ...parsed.resources },
             upgrades: { ...initial.upgrades, ...parsed.upgrades },
+            unlockedCrops: parsed.unlockedCrops || initial.unlockedCrops,
+            revealedCrops: parsed.revealedCrops || initial.revealedCrops,
+            unlockedAnimals: parsed.unlockedAnimals || initial.unlockedAnimals,
+            revealedAnimals: parsed.revealedAnimals || initial.revealedAnimals,
           };
         }
       } catch (e) {
