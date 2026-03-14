@@ -75,7 +75,7 @@ const CropField: React.FC = () => {
 
   return (
     <div>
-      <div className="pixel-grid">
+      <div className="grid">
         {revealedCrops.map(crop => {
           const isUnlocked = unlockedCrops.includes(crop);
           const config = cropConfig[crop];
@@ -106,17 +106,15 @@ const CropField: React.FC = () => {
           
           if (!isUnlocked) {
             return (
-              <div key={crop} className="pixel-stat" style={{ 
-                padding: 12, 
-                background: '#ddd', 
-                borderRadius: 8, 
-                border: '2px dashed #999',
+              <div key={crop} className="stat" style={{ 
+                padding: 'var(--space-sm)', 
+                background: 'var(--bg-surface)', 
                 opacity: 0.7
               }}>
-                <div className="pixel-stat-label" style={{ fontSize: 14, marginBottom: 4, color: '#888' }}>
+                <div className="stat-label" style={{ marginBottom: 'var(--space-xs)' }}>
                   🔒 {formatCropName(crop)}
                 </div>
-                <div style={{ fontSize: 12, color: '#888', textAlign: 'center', marginTop: 20 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', marginTop: 'var(--space-md)' }}>
                   Unlock in Upgrade Shop
                 </div>
               </div>
@@ -124,40 +122,33 @@ const CropField: React.FC = () => {
           }
           
           return (
-            <div key={crop} className="pixel-stat" style={{ 
-              padding: 12, 
-              background: hasFarms ? '#e8ede3' : '#f5f5f5', 
-              borderRadius: 8, 
-              border: hasFarms ? '2px solid #5a7c43' : '1px solid #ddd',
-              boxShadow: hasFarms ? '0 2px 6px rgba(0,0,0,0.15)' : 'none'
+            <div key={crop} className="stat" style={{ 
+              padding: 'var(--space-sm)', 
             }}>
-              <div className="pixel-stat-label" style={{ fontSize: 14, marginBottom: 4 }}>
+              <div className="stat-label" style={{ marginBottom: 'var(--space-xs)' }}>
                 {emoji} {formatCropName(crop)}
                 {hasFarms && (
-                  <span style={{ fontSize: 11, color: '#3d5a2a', marginLeft: 8, fontWeight: 'bold', background: '#c9d9b0', padding: '2px 6px', borderRadius: 4 }}>
+                  <span style={{ fontSize: 11, color: 'var(--accent-success)', marginLeft: 'var(--space-xs)', fontWeight: 'bold' }}>
                     +{incomePerSecond.toFixed(0)}/s
                   </span>
                 )}
               </div>
               
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--space-sm)' }}>
                 <div>
-                  <div style={{ fontSize: 10, color: '#555', fontWeight: 'bold' }}>FARMS</div>
-                  <div style={{ fontSize: 18, fontWeight: 'bold', color: '#222' }}>{data?.count ?? 0}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 'bold' }}>FARMS</div>
+                  <div style={{ fontSize: 18, fontWeight: 'bold', color: 'var(--text-primary)' }}>{data?.count ?? 0}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, color: '#555', fontWeight: 'bold' }}>COST</div>
-                  <div style={{ fontSize: 18, fontWeight: 'bold', color: '#222' }}>${formatMoney(cropCost)}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 'bold' }}>COST</div>
+                  <div style={{ fontSize: 18, fontWeight: 'bold', color: 'var(--text-primary)' }}>${formatMoney(cropCost)}</div>
                 </div>
                 <button 
-                  className="pixel-button" 
+                  className="btn btn-primary"
                   style={{ 
-                    fontSize: 11, 
-                    padding: '8px 16px',
-                    background: state.resources.money < cropCost ? '#aaa' : undefined,
-                    cursor: state.resources.money < cropCost ? 'not-allowed' : 'pointer'
+                    opacity: state.resources.money < cropCost ? 0.5 : 1,
                   }}
-                  onClick={() => handleBuyFarm(cropKey)}
+                  onClick={() => handleBuyFarm(crop)}
                   disabled={state.resources.money < cropCost}
                 >
                   Buy
@@ -165,15 +156,15 @@ const CropField: React.FC = () => {
               </div>
               
               {hasFarms && (
-                <div style={{ marginTop: 12, paddingTop: 8, borderTop: '1px dashed rgba(0,0,0,0.2)' }}>
+                <div style={{ marginTop: 'var(--space-sm)', paddingTop: 'var(--space-xs)', borderTop: '1px dashed var(--glass-border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: 9, color: '#888' }}>
+                    <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>
                       ↑ Fertilizer {fertilizerLevel} | Irrigation {irrigationLevel}
                     </div>
                     <button 
-                      className="pixel-button" 
+                      className="btn btn-primary" 
                       style={{ fontSize: 10, padding: '6px 12px' }}
-                      onClick={() => handleUpgrade(cropKey, nextUpgrade.type)}
+                      onClick={() => handleUpgrade(crop, nextUpgrade.type)}
                       disabled={state.resources.money < upgradeCost}
                     >
                       {nextUpgrade.name} (${formatMoney(upgradeCost)})

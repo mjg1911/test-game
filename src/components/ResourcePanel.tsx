@@ -32,18 +32,18 @@ const ResourcePanel: React.FC = () => {
   };
   
   return (
-    <div className="pixel-panel" style={{ marginBottom: 16 }}>
-      <h3 className="pixel-panel-title">💰 RESOURCES</h3>
-      <div className="pixel-resources">
-        <div className="pixel-resource">
-          <span className="pixel-resource-icon">💵</span>
-          <span className="pixel-resource-label">Money:</span>
-          <span className="pixel-resource-value" data-testid="money">${formatMoney(displayMoney)}</span>
+    <div className="glass-panel" style={{ marginBottom: 'var(--space-md)' }}>
+      <h3 className="heading-section">💰 Resources</h3>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-md)' }}>
+        <div className="resource">
+          <span className="resource-icon">💵</span>
+          <span className="stat-label">Money:</span>
+          <span className="resource-value" data-testid="money">${formatMoney(displayMoney)}</span>
         </div>
-        <div className="pixel-resource">
-          <span className="pixel-resource-icon">⏳</span>
-          <span className="pixel-resource-label">Passive income:</span>
-          <span className="pixel-resource-value" data-testid="passive-income">+${formatMoney(Math.floor(passiveIncomePerSec))}/s</span>
+        <div className="resource">
+          <span className="resource-icon">⏳</span>
+          <span className="stat-label">Passive income:</span>
+          <span className="resource-value" data-testid="passive-income">+${formatMoney(Math.floor(passiveIncomePerSec))}/s</span>
         </div>
       </div>
     </div>

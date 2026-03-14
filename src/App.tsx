@@ -1,7 +1,7 @@
 import CropField from './components/CropField';
 import { useState } from 'react';
 import { useGameStateContext } from './providers/GameStateProvider';
-import './pixelTheme.css';
+import './brmbleTheme.css';
 import ResourcePanel from './components/ResourcePanel';
 import AnimalPen from './components/AnimalPen';
 import UpgradeShop from './components/UpgradeShop';
@@ -60,31 +60,31 @@ function App() {
   }
 
   return (
-    <div className="pixel-container">
-      <h1 className="pixel-title">🌾 IDLE FARM 🌾</h1>
+    <div className="app">
+      <h1 className="heading-title">🌾 Idle Farm</h1>
       <ResourcePanel />
       
-      <div className="pixel-tabs">
+      <div className="tabs">
         <button 
-          className={`pixel-tab ${activeTab === 'crops' ? 'active' : ''}`}
+          className={`tab ${activeTab === 'crops' ? 'active' : ''}`}
           onClick={() => setActiveTab('crops')}
         >
           🌱 Crops
         </button>
         <button 
-          className={`pixel-tab ${activeTab === 'animals' ? 'active' : ''}`}
+          className={`tab ${activeTab === 'animals' ? 'active' : ''}`}
           onClick={() => setActiveTab('animals')}
         >
           🐄 Animals
         </button>
         <button 
-          className={`pixel-tab ${activeTab === 'upgrades' ? 'active' : ''}`}
+          className={`tab ${activeTab === 'upgrades' ? 'active' : ''}`}
           onClick={() => setActiveTab('upgrades')}
         >
           ⬆️ Upgrades
         </button>
         <button 
-          className={`pixel-tab ${activeTab === 'automation' ? 'active' : ''}`}
+          className={`tab ${activeTab === 'automation' ? 'active' : ''}`}
           onClick={() => setActiveTab('automation')}
         >
           ⚙️ Auto
@@ -92,43 +92,43 @@ function App() {
       </div>
 
       {activeTab === 'crops' && (
-        <div className="pixel-panel pixel-panel-crops">
-          <h3 className="pixel-panel-title">🌱 CROP FIELD</h3>
+        <div className="glass-panel pixel-panel-crops">
+          <h3 className="heading-section">🌱 Crop Field</h3>
           <CropField />
         </div>
       )}
 
       {activeTab === 'animals' && (
-        <div className="pixel-panel pixel-panel-animals">
-          <h3 className="pixel-panel-title">🐄 ANIMAL PEN</h3>
+        <div className="glass-panel pixel-panel-animals">
+          <h3 className="heading-section">🐄 Animal Pen</h3>
           <AnimalPen />
         </div>
       )}
 
       {activeTab === 'upgrades' && (
-        <div className="pixel-panel">
-          <h3 className="pixel-panel-title">⬆️ UPGRADE SHOP</h3>
+        <div className="glass-panel">
+          <h3 className="heading-section">⬆️ Upgrade Shop</h3>
           <UpgradeShop />
         </div>
       )}
 
       {activeTab === 'automation' && (
-        <div className="pixel-panel">
-          <h3 className="pixel-panel-title">⚙️ AUTOMATION</h3>
+        <div className="glass-panel">
+          <h3 className="heading-section">⚙️ Automation</h3>
           <AutomationControls />
         </div>
       )}
 
-      <div className="pixel-panel">
-        <h3 className="pixel-panel-title">🎨 FARM MAP</h3>
+      <div className="glass-panel">
+        <h3 className="heading-section">🎨 Farm Map</h3>
         <PixelArtCanvas />
       </div>
       
       <div className="pixel-footer">
-        <button className="pixel-button secondary" onClick={handleExport}>
+        <button className="btn btn-secondary" onClick={handleExport}>
           Export Save
         </button>
-        <label className="pixel-button secondary" style={{ display: 'inline-block', cursor: 'pointer' }}>
+        <label className="btn btn-secondary" style={{ display: 'inline-block', cursor: 'pointer' }}>
           Import Save
           <input
             type="file"
@@ -137,11 +137,11 @@ function App() {
             style={{ display: 'none' }}
           />
         </label>
-        <button className="pixel-button secondary" onClick={handleReset} style={{ backgroundColor: '#7f1d1d' }}>
+        <button className="btn btn-danger" onClick={handleReset}>
           Reset Game
         </button>
       </div>
-      {importError && <div style={{ color: '#ff6b6b', textAlign: 'center', marginTop: 12, fontSize: 8 }}>{importError}</div>}
+      {importError && <div style={{ color: 'var(--accent-danger)', textAlign: 'center', marginTop: 'var(--space-sm)' }}>{importError}</div>}
     </div>
   );
 }
