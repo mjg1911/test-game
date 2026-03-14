@@ -29,6 +29,50 @@ export const cropConfig: { [key: string]: CropConfig } = {
   tomato: { baseCost: 100, cooldown: 21000 }
 };
 
+export function getIncomeMultiplier(farmersOwned: number): number {
+  return Math.pow(INCOME_MULTIPLIER, farmersOwned);
+}
+
+export function isCropUnlocked(crop: string, state: GameState): boolean {
+  return state.unlockedCrops.includes(crop);
+}
+
+export function isCropRevealed(crop: string, state: GameState): boolean {
+  return state.revealedCrops.includes(crop);
+}
+
+export function isAnimalUnlocked(animal: string, state: GameState): boolean {
+  return state.unlockedAnimals.includes(animal);
+}
+
+export function isAnimalRevealed(animal: string, state: GameState): boolean {
+  return state.revealedAnimals.includes(animal);
+}
+
+export function getCropUnlockCost(crop: string): number {
+  return CROP_UNLOCK_COSTS[crop] || 0;
+}
+
+export function getAnimalUnlockCost(animal: string): number {
+  return ANIMAL_UNLOCK_COSTS[animal] || 0;
+}
+
+export function getRevealedUnlockedCrops(state: GameState): string[] {
+  return state.revealedCrops.filter(crop => state.unlockedCrops.includes(crop));
+}
+
+export function getRevealedLockedCrops(state: GameState): string[] {
+  return state.revealedCrops.filter(crop => !state.unlockedCrops.includes(crop));
+}
+
+export function getRevealedUnlockedAnimals(state: GameState): string[] {
+  return state.revealedAnimals.filter(animal => state.unlockedAnimals.includes(animal));
+}
+
+export function getRevealedLockedAnimals(state: GameState): string[] {
+  return state.revealedAnimals.filter(animal => !state.unlockedAnimals.includes(animal));
+}
+
 export function getFarmerCost(cropKey: string, farmersOwned: number): number {
   const config = cropConfig[cropKey as keyof typeof cropConfig];
   if (!config) return Infinity;
