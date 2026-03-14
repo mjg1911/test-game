@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useGameStateContext } from '../providers/GameStateProvider';
+import { useGameStateContext, getRevealedUnlockedAnimals } from '../providers/GameStateProvider';
 import Popup from './Popup';
 
 const ANIMAL_CONFIG = {
@@ -62,7 +62,8 @@ export default function AnimalPen() {
   return (
     <div>
       <div className="pixel-grid">
-        {Object.entries(state.animals).map(([animal, data]: [string, any]) => {
+        {getRevealedUnlockedAnimals(state).map((animal) => {
+          const data = state.animals[animal as keyof typeof state.animals];
           const progress = getProgress(data.lastHarvest, data.cooldown);
           const animalCost = getCost(ANIMAL_CONFIG[animal as keyof typeof ANIMAL_CONFIG].baseCost, data.count);
           const emoji = animal === 'chicken' ? '🐔' : animal === 'cow' ? '🐄' : animal === 'sheep' ? '🐑' : animal === 'pig' ? '🐷' : animal === 'goat' ? '🐐' : animal === 'rabbit' ? '🐰' : '🦆';
