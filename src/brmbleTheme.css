@@ -277,6 +277,19 @@ h4, .heading-label {
   color: var(--text-primary);
 }
 
+/* Resource header container for responsive, right-aligned resources */
+.resource-header-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: var(--space-md);
+  gap: var(--space-md);
+}
+.resource-header-container .resource:last-child {
+  text-align: right;
+}
+
 /* Resource display */
 .resource {
   display: flex;
@@ -294,10 +307,15 @@ h4, .heading-label {
 
 .resource-value {
   font-family: var(--font-mono);
-  font-size: 18px;
+  font-size: clamp(16px, 2vw, 24px);
   font-weight: 500;
   color: var(--accent-secondary);
+  overflow-x: auto;
+  white-space: nowrap;
+  max-width: 100%;
+  display: block;
 }
+
 
 /* Animations */
 @keyframes fadeIn {
@@ -323,12 +341,22 @@ h4, .heading-label {
   .app {
     padding: var(--space-md);
   }
-  
+
   .tabs {
     flex-direction: column;
   }
-  
+
   h1, .heading-title {
     font-size: 24px;
+  }
+
+  /* Responsive column drop for resource-header-container, passive remains right */
+  .resource-header-container {
+    flex-direction: column;
+    gap: var(--space-sm);
+    align-items: stretch;
+  }
+  .resource-header-container .resource:last-child {
+    text-align: right;
   }
 }
