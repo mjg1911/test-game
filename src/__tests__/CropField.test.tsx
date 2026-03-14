@@ -28,11 +28,13 @@ describe('CropField (passive farm income)', () => {
           corn: { count: 0, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
         },
         resources: { money: 100000, wheat: 0, corn: 0 },
+        revealedCrops: ['wheat', 'corn'],
+        unlockedCrops: ['wheat', 'corn'],
       },
       dispatch: vi.fn(),
     };
     renderWithContext(mockGameState);
-    expect(screen.getAllByText(/Farms/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/FARMS/)[0]).toBeInTheDocument();
   });
 
   test('shows buy button', () => {
@@ -43,6 +45,8 @@ describe('CropField (passive farm income)', () => {
           corn: { count: 0, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
         },
         resources: { money: 100000, wheat: 0, corn: 0 },
+        revealedCrops: ['wheat', 'corn'],
+        unlockedCrops: ['wheat', 'corn'],
       },
       dispatch: vi.fn(),
     };
@@ -58,6 +62,8 @@ describe('CropField (passive farm income)', () => {
           corn: { count: 0, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
         },
         resources: { money: 100000, wheat: 0, corn: 0 },
+        revealedCrops: ['wheat', 'corn'],
+        unlockedCrops: ['wheat', 'corn'],
       },
       dispatch: vi.fn(),
     };
@@ -75,6 +81,8 @@ describe('CropField (passive farm income)', () => {
           corn: { count: 0, fertilizerLevel: 0, irrigationLevel: 0, farmers: 0, lastHarvest: null, cooldown: 8000 },
         },
         resources: { money: 100000, wheat: 0, corn: 0 },
+        revealedCrops: ['wheat', 'corn'],
+        unlockedCrops: ['wheat', 'corn'],
       },
       dispatch: vi.fn(),
     };
