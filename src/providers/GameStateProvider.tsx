@@ -88,6 +88,10 @@ export function getFarmerCost(cropKey: string, farmersOwned: number): number {
   return Math.floor(UPGRADE_BASE_COST * config.baseCost * Math.pow(getIncomeMultiplier(cropKey), farmersOwned));
 }
 
+export function getRevealedUnlockedAnimals(state: GameState): string[] {
+  return state.revealedAnimals.filter(animal => state.unlockedAnimals.includes(animal));
+}
+
 export const GameStateContext = createContext({
   state: initialState,
   dispatch: (action: any) => {}

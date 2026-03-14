@@ -80,6 +80,11 @@ const CropField: React.FC = () => {
           const isUnlocked = unlockedCrops.includes(crop);
           const config = cropConfig[crop];
           const data = state.crops[crop];
+          
+          if (!config) {
+            return null;
+          }
+
           const cropCost = getCost(config.baseCost, data?.count ?? 0, crop);
           const emoji = CROP_EMOJI[crop];
           
@@ -174,7 +179,7 @@ const CropField: React.FC = () => {
               )}
             </div>
           );
-        })}
+        }).filter(Boolean)}
       </div>
     </div>
   );
