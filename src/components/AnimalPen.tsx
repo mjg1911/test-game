@@ -61,7 +61,7 @@ export default function AnimalPen() {
 
   return (
     <div>
-      <div className="pixel-grid">
+      <div className="grid">
         {getRevealedUnlockedAnimals(state).map((animal) => {
           const data = state.animals[animal as keyof typeof state.animals];
           const progress = getProgress(data.lastHarvest, data.cooldown);
@@ -69,41 +69,37 @@ export default function AnimalPen() {
           const emoji = animal === 'chicken' ? '🐔' : animal === 'cow' ? '🐄' : animal === 'sheep' ? '🐑' : animal === 'pig' ? '🐷' : animal === 'goat' ? '🐐' : animal === 'rabbit' ? '🐰' : '🦆';
           
           return (
-            <div key={animal} className="pixel-stat">
-              <div className="pixel-stat-label">
+            <div key={animal} className="stat">
+              <div className="stat-label">
                 {emoji} {animal.charAt(0).toUpperCase() + animal.slice(1)}
               </div>
-              <div className="pixel-stat-value">
+              <div className="stat-value">
                 Owned: {data.count} | Cost: ${animalCost}
               </div>
               {data.count > 0 ? (
-  <div style={{ marginTop: 4 }}>
-    <div className="pixel-progress">
-      <div className="pixel-progress-bar" style={{ width: `${progress}%` }} />
+  <div style={{ marginTop: 'var(--space-xs)' }}>
+    <div className="progress">
+      <div className="progress-bar" style={{ width: `${progress}%` }} />
     </div>
-    <div style={{ fontSize: 7, color: progress === 100 ? '#22c55e' : '#8b5e3c', fontWeight: progress === 100 ? 'bold' : 'normal', marginTop: 4 }}>
+    <div style={{ fontSize: 12, color: progress === 100 ? 'var(--accent-success)' : 'var(--text-muted)', fontWeight: progress === 100 ? 'bold' : 'normal', marginTop: 'var(--space-xs)' }}>
       {progress === 100 ? 'READY!' : `${progress}%`}
     </div>
   </div>
 ) : (
-  <div style={{ fontSize: 7, marginTop: 4 }}>Buy your first!</div>
+  <div style={{ fontSize: 12, marginTop: 'var(--space-xs)', color: 'var(--text-muted)' }}>Buy your first!</div>
 )}
-              <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+              <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-sm)' }}>
                 <button 
-                  className="pixel-button" 
+                  className="btn btn-primary"
                   style={{ 
-                    fontSize: 14, 
-                    padding: '12px 24px',
-                    background: state.resources.money < getCost(ANIMAL_CONFIG[animal as keyof typeof ANIMAL_CONFIG].baseCost, data.count) ? '#aaa' : undefined,
-                    cursor: state.resources.money < getCost(ANIMAL_CONFIG[animal as keyof typeof ANIMAL_CONFIG].baseCost, data.count) ? 'not-allowed' : 'pointer'
+                    opacity: state.resources.money < getCost(ANIMAL_CONFIG[animal as keyof typeof ANIMAL_CONFIG].baseCost, data.count) ? 0.5 : 1,
                   }}
                   onClick={() => handleBuy(animal)}
                 >
                   Buy
                 </button>
                 <button 
-                  className="pixel-button" 
-                  style={{ fontSize: 14, padding: '12px 24px' }}
+                  className="btn btn-primary"
                   onClick={() => handleCollect(animal)}
                   disabled={data.count === 0}
                 >
