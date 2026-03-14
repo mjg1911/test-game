@@ -265,4 +265,42 @@ describe('ResourcePanel', () => {
     }
   });
 
+  it('has proper accessibility labels for screen readers', () => {
+    const mockContext = {
+      state: {
+        unlockedCrops: ['wheat', 'corn'],
+        revealedCrops: ['wheat', 'corn'],
+        unlockedAnimals: [],
+        revealedAnimals: ['chicken'],
+        resources: { money: 100, wheat: 0, corn: 0, sunflower: 0, peas: 0, pumpkin: 0, potato: 0, tomato: 0, potatoes: 0, sugarcane: 0, cotton: 0, coffeeBeans: 0, strawberries: 0, grapes: 0, cocoaPods: 0, goldenApples: 0, starfruit: 0, moonMelons: 0, etherealLotus: 0, chronoVines: 0, voidBerries: 0, eggs: 0, milk: 0, wool: 0, bacon: 0, cheese: 0, fur: 0, feathers: 0 },
+        crops: { ...fullCropsMock,
+          wheat: { count: 1, lastHarvest: null, cooldown: 10000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+          corn: { count: 0, lastHarvest: null, cooldown: 10000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+          sunflower: { count: 0, lastHarvest: null, cooldown: 10000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+          peas: { count: 0, lastHarvest: null, cooldown: 10000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+          pumpkin: { count: 0, lastHarvest: null, cooldown: 10000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+          potato: { count: 0, lastHarvest: null, cooldown: 10000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 },
+          tomato: { count: 0, lastHarvest: null, cooldown: 10000, farmers: 0, fertilizerLevel: 0, irrigationLevel: 0 }
+        },
+        upgrades: {
+          fertilizer: { level: 0, cost: 100 },
+          autoHarvester: { level: 0, cost: 500 }
+        },
+        animals: emptyAnimals,
+      },
+      dispatch: () => {}
+    };
+    render(
+      <GameStateContext.Provider value={mockContext}>
+        <ResourcePanel />
+      </GameStateContext.Provider>
+    );
+    const money = screen.getByTestId('money');
+    const passive = screen.getByTestId('passive-income');
+    expect(money).toHaveAttribute('aria-label');
+    expect(passive).toHaveAttribute('aria-label');
+    expect(money.getAttribute('aria-label')).toBe('Money value');
+    expect(passive.getAttribute('aria-label')).toBe('Passive income');
+  });
+
 });
