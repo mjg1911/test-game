@@ -32,7 +32,12 @@ const formatMoney = (n: number) => {
 
 const getCost = (baseCost: number, count: number, crop: string) => Math.floor(baseCost * Math.pow(getIncomeMultiplier(crop), count));
 
-const getUpgradeCost = (level: number) => Math.floor(100 * Math.pow(2, level));
+const getUpgradeCost = (level: number, crop: string) => {
+  const basePrice = SELL_PRICES[crop] || 1;
+  const wheatPrice = SELL_PRICES['wheat'] || 1;
+  const multiplier = basePrice / wheatPrice;
+  return Math.floor(100 * multiplier * Math.pow(2, level));
+};
 
 const formatCropName = (key: string) => {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
@@ -63,7 +68,7 @@ const CropField: React.FC = () => {
     const level = upgradeType === 'fertilizer' 
       ? (cropData.fertilizerLevel || 0) 
       : (cropData.irrigationLevel || 0);
-    const cost = getUpgradeCost(level);
+    const cost = getUpgradeCost(level, crop);
     
     if (state.resources.money >= cost) {
       dispatch({ type: 'UPGRADE_FARM', crop, upgradeType });
@@ -105,7 +110,7 @@ const CropField: React.FC = () => {
           };
           
           const nextUpgrade = getNextUpgrade();
-          const upgradeCost = getUpgradeCost(nextUpgrade.level);
+          const upgradeCost = getUpgradeCost(nextUpgrade.level, crop);
           
           const hasFarms = (data?.count ?? 0) > 0;
           
@@ -168,7 +173,7 @@ const CropField: React.FC = () => {
                     </div>
                     <button 
                       className="btn btn-primary" 
-                      style={{ fontSize: 10, padding: '6px 12px' }}
+                      style={{ fontSize: 10, padding: '6px 12px', opacity: state.resources.money < upgradeCost ? 0.5 : 1 }}
                       onClick={() => handleUpgrade(crop, nextUpgrade.type)}
                       disabled={state.resources.money < upgradeCost}
                     >
