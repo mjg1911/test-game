@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer } from 'react';
-import { getInitialGameState } from '../gameState';
+import { getInitialGameState, CROP_UNLOCK_COSTS, ANIMAL_UNLOCK_COSTS, CROP_ORDER, ANIMAL_ORDER } from '../gameState';
 
 const UPGRADE_BASE_COST = 100;
 const UPGRADE_COST_EXPONENT = 2;
@@ -28,6 +28,50 @@ export const cropConfig: { [key: string]: CropConfig } = {
   potato: { baseCost: 70, cooldown: 17000 },
   tomato: { baseCost: 100, cooldown: 21000 }
 };
+
+export function getIncomeMultiplier(farmersOwned: number): number {
+  return Math.pow(INCOME_MULTIPLIER, farmersOwned);
+}
+
+export function isCropUnlocked(crop: string, state: GameState): boolean {
+  return state.unlockedCrops.includes(crop);
+}
+
+export function isCropRevealed(crop: string, state: GameState): boolean {
+  return state.revealedCrops.includes(crop);
+}
+
+export function isAnimalUnlocked(animal: string, state: GameState): boolean {
+  return state.unlockedAnimals.includes(animal);
+}
+
+export function isAnimalRevealed(animal: string, state: GameState): boolean {
+  return state.revealedAnimals.includes(animal);
+}
+
+export function getCropUnlockCost(crop: string): number {
+  return CROP_UNLOCK_COSTS[crop] || 0;
+}
+
+export function getAnimalUnlockCost(animal: string): number {
+  return ANIMAL_UNLOCK_COSTS[animal] || 0;
+}
+
+export function getRevealedUnlockedCrops(state: GameState): string[] {
+  return state.revealedCrops.filter(crop => state.unlockedCrops.includes(crop));
+}
+
+export function getRevealedLockedCrops(state: GameState): string[] {
+  return state.revealedCrops.filter(crop => !state.unlockedCrops.includes(crop));
+}
+
+export function getRevealedUnlockedAnimals(state: GameState): string[] {
+  return state.revealedAnimals.filter(animal => state.unlockedAnimals.includes(animal));
+}
+
+export function getRevealedLockedAnimals(state: GameState): string[] {
+  return state.revealedAnimals.filter(animal => !state.unlockedAnimals.includes(animal));
+}
 
 export function getFarmerCost(cropKey: string, farmersOwned: number): number {
   const config = cropConfig[cropKey as keyof typeof cropConfig];
@@ -90,6 +134,10 @@ interface GameState {
   animals: AnimalsState;
   resources: ResourcesState;
   upgrades: UpgradesState;
+  unlockedCrops: string[];
+  revealedCrops: string[];
+  unlockedAnimals: string[];
+  revealedAnimals: string[];
 }
 
 
@@ -104,7 +152,9 @@ type GameAction =
   | { type: 'UPGRADE'; upgrade: string; cost: number }
   | { type: 'RESET' }
   | { type: 'ADD_PASSIVE_INCOME'; crop: string }
-  | { type: 'UPGRADE_FARM'; crop: string; upgradeType: 'fertilizer' | 'irrigation' };
+  | { type: 'UPGRADE_FARM'; crop: string; upgradeType: 'fertilizer' | 'irrigation' }
+  | { type: 'UNLOCK_CROP'; crop: string }
+  | { type: 'UNLOCK_ANIMAL'; animal: string };
 
 export function reducer(state: GameState, action: GameAction) {
   switch (action.type) {
@@ -372,6 +422,40 @@ const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = 
         },
       };
     }
+    case 'UNLOCK_CROP': {
+      const cropUnlockCost = CROP_UNLOCK_COSTS[action.crop] || 0;
+      if (state.resources.money < cropUnlockCost) return state;
+      
+      const nextCropIndex = CROP_ORDER.indexOf(action.crop) + 1;
+      const nextCrop = CROP_ORDER[nextCropIndex];
+      
+      return {
+        ...state,
+        unlockedCrops: [...state.unlockedCrops, action.crop],
+        revealedCrops: nextCrop ? [...state.revealedCrops, nextCrop] : state.revealedCrops,
+        resources: {
+          ...state.resources,
+          money: state.resources.money - cropUnlockCost
+        }
+      };
+    }
+    case 'UNLOCK_ANIMAL': {
+      const animalUnlockCost = ANIMAL_UNLOCK_COSTS[action.animal] || 0;
+      if (state.resources.money < animalUnlockCost) return state;
+      
+      const nextAnimalIndex = ANIMAL_ORDER.indexOf(action.animal) + 1;
+      const nextAnimal = ANIMAL_ORDER[nextAnimalIndex];
+      
+      return {
+        ...state,
+        unlockedAnimals: [...state.unlockedAnimals, action.animal],
+        revealedAnimals: nextAnimal ? [...state.revealedAnimals, nextAnimal] : state.revealedAnimals,
+        resources: {
+          ...state.resources,
+          money: state.resources.money - animalUnlockCost
+        }
+      };
+    }
     default:
       return state;
   }
@@ -402,6 +486,10 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
             animals: { ...initial.animals, ...parsed.animals },
             resources: { ...initial.resources, ...parsed.resources },
             upgrades: { ...initial.upgrades, ...parsed.upgrades },
+            unlockedCrops: parsed.unlockedCrops || initial.unlockedCrops,
+            revealedCrops: parsed.revealedCrops || initial.revealedCrops,
+            unlockedAnimals: parsed.unlockedAnimals || initial.unlockedAnimals,
+            revealedAnimals: parsed.revealedAnimals || initial.revealedAnimals,
           };
         }
       } catch (e) {

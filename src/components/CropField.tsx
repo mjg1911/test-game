@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useGameStateContext } from '../providers/GameStateProvider';
+import { useGameStateContext, getIncomeMultiplier, getRevealedUnlockedCrops } from '../providers/GameStateProvider';
 
 const CROP_CONFIG = {
   wheat: { baseCost: 10, cooldown: 5000, sellPrice: 1.5 },
@@ -50,15 +50,16 @@ const CropField: React.FC = () => {
   return (
     <div>
       <div className="pixel-grid">
-        {(Object.keys(CROP_CONFIG) as (keyof typeof CROP_CONFIG)[]).map(crop => {
-          const data = state.crops[crop];
-          const cropCost = getCost(CROP_CONFIG[crop].baseCost, data?.count ?? 0);
-          const emoji = crop === 'wheat' ? '🌾' : crop === 'corn' ? '🌽' : '🌻';
+        {getRevealedUnlockedCrops(state).map(crop => {
+          const cropKey = crop as keyof typeof CROP_CONFIG;
+          const data = state.crops[cropKey];
+          const cropCost = getCost(CROP_CONFIG[cropKey].baseCost, data?.count ?? 0);
+          const emoji = cropKey === 'wheat' ? '🌾' : cropKey === 'corn' ? '🌽' : cropKey === 'sunflower' ? '🌻' : cropKey === 'peas' ? '🫛' : cropKey === 'pumpkin' ? '🎃' : cropKey === 'potato' ? '🥔' : '🍅';
           
-          const baseIncome = (data?.count ?? 0) * CROP_CONFIG[crop].sellPrice;
+          const baseIncome = (data?.count ?? 0) * CROP_CONFIG[cropKey].sellPrice;
           const fertilizerMultiplier = 1 + ((data?.fertilizerLevel || 0) * 0.25);
           const irrigationMultiplier = 1 + ((data?.irrigationLevel || 0) * 0.1);
-          const incomePerSecond = (baseIncome * fertilizerMultiplier * irrigationMultiplier) / (CROP_CONFIG[crop].cooldown / 1000);
+          const incomePerSecond = (baseIncome * fertilizerMultiplier * irrigationMultiplier) / (CROP_CONFIG[cropKey].cooldown / 1000);
           
           const fertilizerLevel = data?.fertilizerLevel || 0;
           const irrigationLevel = data?.irrigationLevel || 0;
@@ -115,7 +116,7 @@ const CropField: React.FC = () => {
                     background: state.resources.money < cropCost ? '#aaa' : undefined,
                     cursor: state.resources.money < cropCost ? 'not-allowed' : 'pointer'
                   }}
-                  onClick={() => handleBuyFarm(crop)}
+                  onClick={() => handleBuyFarm(cropKey)}
                   disabled={state.resources.money < cropCost}
                 >
                   Buy
@@ -131,7 +132,7 @@ const CropField: React.FC = () => {
                     <button 
                       className="pixel-button" 
                       style={{ fontSize: 10, padding: '6px 12px' }}
-                      onClick={() => handleUpgrade(crop, nextUpgrade.type)}
+                      onClick={() => handleUpgrade(cropKey, nextUpgrade.type)}
                       disabled={state.resources.money < upgradeCost}
                     >
                       {nextUpgrade.name} (${formatMoney(upgradeCost)})

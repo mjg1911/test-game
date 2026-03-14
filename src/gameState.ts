@@ -7,6 +7,29 @@ export interface CropData {
   irrigationLevel: number;
 }
 
+export const CROP_UNLOCK_COSTS: Record<string, number> = {
+  wheat: 0,
+  corn: 0,
+  sunflower: 600,
+  peas: 2500,
+  pumpkin: 12000,
+  potato: 70000,
+  tomato: 200000
+};
+
+export const ANIMAL_UNLOCK_COSTS: Record<string, number> = {
+  chicken: 5000,
+  rabbit: 15000,
+  duck: 40000,
+  sheep: 100000,
+  goat: 250000,
+  pig: 600000,
+  cow: 1500000
+};
+
+export const CROP_ORDER = ['wheat', 'corn', 'sunflower', 'peas', 'pumpkin', 'potato', 'tomato'];
+export const ANIMAL_ORDER = ['chicken', 'rabbit', 'duck', 'sheep', 'goat', 'pig', 'cow'];
+
 export interface AnimalData {
   count: number;
   lastHarvest: number | null;
@@ -36,24 +59,16 @@ export function getInitialGameState() {
     },
     resources: {
       money: 30,
-      wheat: 0,
-      corn: 0,
-      sunflower: 0,
-      peas: 0,
-      pumpkin: 0,
-      potato: 0,
-      tomato: 0,
-      eggs: 0,
-      milk: 0,
-      wool: 0,
-      bacon: 0,
-      cheese: 0,
-      fur: 0,
-      feathers: 0
+      wheat: 0, corn: 0, sunflower: 0, peas: 0, pumpkin: 0, potato: 0, tomato: 0,
+      eggs: 0, milk: 0, wool: 0, bacon: 0, cheese: 0, fur: 0, feathers: 0
     },
     upgrades: {
       fertilizer: { level: 0, cost: 100 },
       autoHarvester: { level: 0, cost: 500 }
-    }
+    },
+    unlockedCrops: ['wheat', 'corn'],
+    revealedCrops: ['wheat', 'corn', 'sunflower'],
+    unlockedAnimals: [],
+    revealedAnimals: ['chicken']
   }
 }
