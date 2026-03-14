@@ -12,7 +12,7 @@ const ANIMAL_CONFIG = {
   duck: { baseCost: 200, cooldown: 70000, produceValue: 10 }
 };
 
-const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.15, count));
+const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.3, count));
 
 export default function AnimalPen() {
   const { state, dispatch } = useGameStateContext();
@@ -90,7 +90,12 @@ export default function AnimalPen() {
               <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
                 <button 
                   className="pixel-button" 
-                  style={{ fontSize: 14, padding: '12px 24px' }}
+                  style={{ 
+                    fontSize: 14, 
+                    padding: '12px 24px',
+                    background: state.resources.money < getCost(ANIMAL_CONFIG[animal as keyof typeof ANIMAL_CONFIG].baseCost, data.count) ? '#aaa' : undefined,
+                    cursor: state.resources.money < getCost(ANIMAL_CONFIG[animal as keyof typeof ANIMAL_CONFIG].baseCost, data.count) ? 'not-allowed' : 'pointer'
+                  }}
                   onClick={() => handleBuy(animal)}
                 >
                   Buy

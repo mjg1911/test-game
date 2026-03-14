@@ -71,17 +71,41 @@ describe('GameStateProvider', () => {
     });
   });
 
+  describe('BUY_ANIMAL', () => {
+    it('animal cost uses 1.3 multiplier', () => {
+      const initialState = getInitialGameState();
+      initialState.animals.chicken.count = 1;
+      initialState.resources.money = 1000;
+      
+      const newState = reducer(initialState, { type: 'BUY_ANIMAL', animal: 'chicken' });
+      
+      expect(newState.animals.chicken.count).toBe(2);
+      expect(newState.resources.money).toBe(675); // 1000 - 325 = 675 (250 * 1.3^1)
+    });
+  });
+
+  describe('COLLECT_ANIMAL', () => {
+    it('animal sell prices reduced to 10%', () => {
+      const state = getInitialGameState();
+      state.animals.chicken.count = 1;
+      state.animals.chicken.lastHarvest = Date.now() - 100000;
+      const newState = reducer(state, { type: 'COLLECT_ANIMAL', animal: 'chicken' });
+      // Should earn 10% of previous (was 250, now 25)
+      expect(newState.resources.money).toBe(55); // 30 + 25
+    });
+  });
+
   describe('ADD_PASSIVE_INCOME', () => {
     it('ADD_PASSIVE_INCOME adds money based on crop farms', () => {
       const initialState = getInitialGameState();
       initialState.crops.wheat.count = 1;
-      initialState.resources.money = 500;
+      initialState.resources.money = 30;
       
       const newState = reducer(initialState, { type: 'ADD_PASSIVE_INCOME', crop: 'wheat' });
       
-      // wheat has 1 farm, base income = 15 sell / 5 sec = 3 $/s
-      // With 0 upgrades: 3 * 1 * 1.15^0 = 3
-      expect(newState.resources.money).toBe(503);
+      // wheat has 1 farm, base income = 1.5 sell / 5 sec = 0.3 $/s
+      // With 0 upgrades: 0.3 * 1 * 1.3^0 = 0.3
+      expect(newState.resources.money).toBe(30.3);
     });
 
     it('passive income tick adds money every second for each crop with farms', async () => {

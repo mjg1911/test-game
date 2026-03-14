@@ -3,10 +3,10 @@ import { getInitialGameState } from '../gameState';
 
 const UPGRADE_BASE_COST = 100;
 const UPGRADE_COST_EXPONENT = 2;
-const INCOME_MULTIPLIER = 1.15;
+const INCOME_MULTIPLIER = 1.3;
 
 const SELL_PRICES: Record<string, number> = {
-  wheat: 15, corn: 30, sunflower: 45, peas: 65, pumpkin: 85, potato: 110, tomato: 145
+  wheat: 1.5, corn: 3, sunflower: 4.5, peas: 6.5, pumpkin: 8.5, potato: 11, tomato: 14.5
 };
 
 const BASE_COOLDOWNS: Record<string, number> = {
@@ -233,7 +233,7 @@ const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = 
       if (!config) return state;
 
       const count = state.animals[action.animal].count;
-      const cost = Math.floor(config.baseCost * Math.pow(1.15, count));
+      const cost = Math.floor(config.baseCost * Math.pow(1.3, count));
       
       if (state.resources.money < cost) return state;
 
@@ -274,7 +274,7 @@ const animalConfig: { [key: string]: { baseCost: number; cooldown: number } } = 
 };
 
       const config = animalConfig[action.animal];
-      const moneyEarned = config ? config.baseCost * animal.count : 0;
+      const moneyEarned = (config ? config.baseCost * animal.count : 0) * 0.1;
 
       return {
         ...state,

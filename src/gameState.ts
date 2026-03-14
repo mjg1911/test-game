@@ -35,7 +35,7 @@ export function getInitialGameState() {
       duck: { count: 0, lastHarvest: null, cooldown: 70000, produceType: 'feathers' }
     },
     resources: {
-      money: 500,
+      money: 30,
       wheat: 0,
       corn: 0,
       sunflower: 0,

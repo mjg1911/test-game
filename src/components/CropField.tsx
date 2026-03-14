@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useGameStateContext } from '../providers/GameStateProvider';
 
 const CROP_CONFIG = {
-  wheat: { baseCost: 10, cooldown: 5000, sellPrice: 15 },
-  corn: { baseCost: 20, cooldown: 8000, sellPrice: 30 },
-  sunflower: { baseCost: 30, cooldown: 10000, sellPrice: 45 },
-  peas: { baseCost: 40, cooldown: 12000, sellPrice: 65 },
-  pumpkin: { baseCost: 50, cooldown: 14000, sellPrice: 85 },
-  potato: { baseCost: 70, cooldown: 17000, sellPrice: 110 },
-  tomato: { baseCost: 100, cooldown: 21000, sellPrice: 145 }
+  wheat: { baseCost: 10, cooldown: 5000, sellPrice: 1.5 },
+  corn: { baseCost: 20, cooldown: 8000, sellPrice: 3 },
+  sunflower: { baseCost: 30, cooldown: 10000, sellPrice: 4.5 },
+  peas: { baseCost: 40, cooldown: 12000, sellPrice: 6.5 },
+  pumpkin: { baseCost: 50, cooldown: 14000, sellPrice: 8.5 },
+  potato: { baseCost: 70, cooldown: 17000, sellPrice: 11 },
+  tomato: { baseCost: 100, cooldown: 21000, sellPrice: 14.5 }
 };
 
-const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.15, count));
+const getCost = (baseCost: number, count: number) => Math.floor(baseCost * Math.pow(1.3, count));
 
 const getUpgradeCost = (level: number) => Math.floor(100 * Math.pow(2, level));
 
@@ -58,7 +58,7 @@ const CropField: React.FC = () => {
           const baseIncome = (data?.count ?? 0) * CROP_CONFIG[crop].sellPrice;
           const fertilizerMultiplier = 1 + ((data?.fertilizerLevel || 0) * 0.25);
           const irrigationMultiplier = 1 + ((data?.irrigationLevel || 0) * 0.1);
-          const incomePerSecond = Math.floor((baseIncome * fertilizerMultiplier * irrigationMultiplier) / (CROP_CONFIG[crop].cooldown / 1000));
+          const incomePerSecond = (baseIncome * fertilizerMultiplier * irrigationMultiplier) / (CROP_CONFIG[crop].cooldown / 1000);
           
           const fertilizerLevel = data?.fertilizerLevel || 0;
           const irrigationLevel = data?.irrigationLevel || 0;
@@ -93,7 +93,7 @@ const CropField: React.FC = () => {
                 {emoji} {crop.charAt(0).toUpperCase() + crop.slice(1)}
                 {hasFarms && (
                   <span style={{ fontSize: 11, color: '#3d5a2a', marginLeft: 8, fontWeight: 'bold', background: '#c9d9b0', padding: '2px 6px', borderRadius: 4 }}>
-                    +{formatMoney(incomePerSecond)}/s
+                    +{incomePerSecond.toFixed(2)}/s
                   </span>
                 )}
               </div>
@@ -109,8 +109,14 @@ const CropField: React.FC = () => {
                 </div>
                 <button 
                   className="pixel-button" 
-                  style={{ fontSize: 11, padding: '8px 16px' }}
+                  style={{ 
+                    fontSize: 11, 
+                    padding: '8px 16px',
+                    background: state.resources.money < cropCost ? '#aaa' : undefined,
+                    cursor: state.resources.money < cropCost ? 'not-allowed' : 'pointer'
+                  }}
                   onClick={() => handleBuyFarm(crop)}
+                  disabled={state.resources.money < cropCost}
                 >
                   Buy
                 </button>

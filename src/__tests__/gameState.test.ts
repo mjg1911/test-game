@@ -1,9 +1,24 @@
 import { getInitialGameState } from "../gameState"
+import { cropConfig, reducer } from "../providers/GameStateProvider"
 
 test("initial state has upgradeLevel on crops", () => {
   const state = getInitialGameState();
   expect(state.crops.wheat.fertilizerLevel).toBe(0);
   expect(state.crops.wheat.irrigationLevel).toBe(0);
+});
+
+test("initial state has $30 starting money", () => {
+  const state = getInitialGameState();
+  expect(state.resources.money).toBe(30);
+});
+
+test("farm cost multiplier is 1.3", () => {
+  const state = getInitialGameState();
+  state.crops.wheat.count = 1;
+  state.resources.money = 100;
+  const newState = reducer(state, { type: 'BUY_PLOT', crop: 'wheat' });
+  const expectedCost = Math.floor(cropConfig.wheat.baseCost * Math.pow(1.3, 1));
+  expect(state.resources.money - newState.resources.money).toBe(expectedCost);
 });
 
 test("initial state has correct structure", () => {
@@ -37,9 +52,19 @@ expect(state.crops.tomato.cooldown).toBe(21000);
   expect(state.animals.chicken.lastHarvest).toBeNull();
   expect(state.animals.chicken.cooldown).toBe(50000);
   expect(state.animals.chicken.produceType).toBe('eggs');
-  expect(state.resources.money).toBe(500);
+  expect(state.resources.money).toBe(30);
   expect(state.upgrades.fertilizer.level).toBe(0);
   expect(state.upgrades.fertilizer.cost).toBe(100);
   expect(state.upgrades.autoHarvester.level).toBe(0);
   expect(state.upgrades.autoHarvester.cost).toBe(500);
+});
+
+test("crop sell prices are reduced to 10%", () => {
+  const state = getInitialGameState();
+  const withFarm = reducer(
+    { ...state, crops: { ...state.crops, wheat: { ...state.crops.wheat, count: 1 } } },
+    { type: 'ADD_PASSIVE_INCOME', crop: 'wheat' }
+  );
+  const income = withFarm.resources.money - 30;
+  expect(income).toBeLessThan(1);
 });
